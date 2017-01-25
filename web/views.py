@@ -170,11 +170,12 @@ def ajax_handler(request, command):
             # Format Data
             rows = []
             for row in output:
-                success = False
-                auth_rows = db.find_auth({'session': row['session']})
-                for auth in auth_rows:
-                    if auth['message'].endswith('succeeded'):
-                        success = True
+                success = 'Disabled'
+                #auth_rows = db.find_auth({'session': row['session']})
+                #for auth in auth_rows:
+                #    if auth['message'].endswith('succeeded'):
+                #        success = True
+                row['success'] = success
 
                 # Time Stuffs
                 starttime = convert_date(row['starttime'])
@@ -186,9 +187,9 @@ def ajax_handler(request, command):
                     row['session'],
                     row['src_ip'],
                     row['dst_port'],
-                    starttime.strftime('%Y-%m-%d %H:%M:%S.%f'), #row['starttime'],
-                    endtime.strftime('%Y-%m-%d %H:%M:%S.%f'), #row['endtime'],
-                    str(time_delta), #'abc Seconds',
+                    starttime.strftime('%Y-%m-%d %H:%M:%S.%f'),
+                    endtime.strftime('%Y-%m-%d %H:%M:%S.%f'),
+                    str(time_delta),
                     success,
                     row['sensor']
                 ])
@@ -215,11 +216,10 @@ def ajax_handler(request, command):
             print 22
 
             # Check if a session had a valid auth
-
-            # This is SLOW
+            # This is very slow, need to find a quicker way.
 
             for row in output:
-                success = 'N/A'
+                success = 'Disabled'
 
                 #auth_rows = db.find_auth({'session': row['session']})
                 #for auth in auth_rows:

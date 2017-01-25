@@ -215,12 +215,16 @@ def ajax_handler(request, command):
             print 22
 
             # Check if a session had a valid auth
+
+            # This is SLOW
+
             for row in output:
-                success = False
-                auth_rows = db.find_auth({'session': row['session']})
-                for auth in auth_rows:
-                    if auth['message'].endswith('succeeded'):
-                        success = True
+                success = 'N/A'
+
+                #auth_rows = db.find_auth({'session': row['session']})
+                #for auth in auth_rows:
+                #    if auth['message'].endswith('succeeded'):
+                #        success = True
                 row['success'] = success
 
 

@@ -1,2 +1,2 @@
 # mollusc
-Web App for Cowrie Honeypot
+Web portal for viewing cowrie logs

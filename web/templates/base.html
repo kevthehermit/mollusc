@@ -1,0 +1,105 @@
+{% load staticfiles %}
+{% load customtags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Mollusc - {% block title %}{% endblock %}</title>
+<meta charset="UTF-8">
+<meta name="description" content="Mollusc">
+<meta name="keywords" content="mollusc,cowrie">
+<link id="bootswatch" href="{% static 'css/'|theme:"theme" %}" rel="stylesheet">
+<link href="{% static 'css/datatables.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/style.css' %}" rel="stylesheet">
+<link href="{% static 'css/asciinema-player.css' %}" rel="stylesheet">
+
+
+</head>
+ 
+<body>
+<!-- Nav Bar -->
+
+<nav class="navbar" role="navigation">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a href="/" class="navbar-brand">Mollusc</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"></li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="/logout/">Logout</a></li>
+        <li><a href="#" data-toggle="modal" data-target="#aboutModal">About</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Help <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="https://github.com/kevthehermit/mollusc/">Wiki</a></li>
+            <li><a href="https://github.com/kevthehermit/mollusc/issues">Issues</a></li>
+            <li class="divider"></li>
+            <li><a href="#" data-toggle="modal" data-target="#aboutModal">About</a></li>
+            <li><a href="#" onclick="spinnerControl('open', 'Loading Results')">Loading page</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- End Nav -->
+
+{% if error_line %}
+<!-- Error Line -->
+<div class="alert alert-danger alert-dismissible text-center" role="alert">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <strong>Doh!</strong> {{error_line}}.
+</div>
+{% endif %}
+
+
+<div class="container-fluid">
+    <!-- End Header  -->
+    {% block content %}{% endblock %}
+</div>
+
+<div id="spinnerdiv" class="spinner">
+    <a href="javascript:void(0)" class="closebtn" onclick="spinnerControl('close')">&times;</a>
+  <!-- Overlay content -->
+  <div class="spinner-content">
+      <h2 id="loadingtext"></h2>
+    <img src="{% static 'img/'|theme:"spinner" %}">
+
+  </div>
+</div>
+
+
+  
+<div class="footer">
+    <div class="container">
+        <div align="center">
+            <p class="muted credit"><a href="https://github.com/kevthehermit/mollusc">Mollusc</a> Copyright &copy; 2016. Created by <a href="https://techanarchy.net/">Kevin Breen</a>.</p>
+        </div>
+    </div>
+</div>
+
+{% include 'about_modal.html' %}
+
+<!-- include libries(jQuery, bootstrap, fileview) -->
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+<script src="{% static 'js/mollusc.js' %}"></script>
+
+{% block javascript %}{% endblock %}
+
+</body>
+</html>

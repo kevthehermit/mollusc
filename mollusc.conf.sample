@@ -1,0 +1,14 @@
+[database]
+mongo_uri = mongodb://localhost
+dbname = cowrie
+
+[virustotal]
+api_type = public
+api_key = None
+
+[style]
+theme = slate.min.css
+spinner = cat_spinner.gif
+
+[auth]
+enable = False

@@ -1,0 +1,32 @@
+<table id="sessiontable" class="table table-striped table-bordered table-hover">
+    <thead>
+    <tr>
+        <th>Session</th>
+        <th>Src IP</th>
+        <th>Dst Port</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Duration</th>
+        <th>Auth Success</th>
+        <th>Sensor</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in session_list %}
+    <tr>
+        <td>{{row.session}}</td>
+        <td>{{row.src_ip}}</td>
+        <td>{{row.dst_port}}</td>
+        <td>{{row.starttime}}</td>
+        <td>{{row.endtime}}</td>
+        <td>{{ row.duration }}</td>
+        <td>{{ row.success }}</td>
+        <td>{{ row.sensor }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    var vresultCount = '{{ resultcount }}';
+</script>

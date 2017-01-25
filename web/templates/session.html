@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load customtags %}
+
+
+{% block title %}VolUI{% endblock %}
+
+{% block content %}
+
+<div id="alertTarget"></div>
+
+<div class="container-fluid">
+<div class="row">
+    <div class="col-lg-6">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Session Information</h3>
+                </div>
+
+                <table class="table table-striped table-bordered table-hover">
+                    <tr>
+                        <th>Session Name</th>
+                        <td>{{session_details.session}}</td>
+                    </tr>
+                    <tr>
+                        <th>Sensor</th>
+                        <td>{{session_details.sensor}}</td>
+                    </tr>
+                    <tr>
+                        <th>Source IP</th>
+                        <td id="sessionID">{{session_details.src_ip}}</td>
+                    </tr>
+                    <tr>
+                        <th>Start Time</th>
+                        <td>{{session_details.starttime}}</td>
+                    </tr>
+                    <tr>
+                        <th>End Time</th>
+                        <td>{{session_details.endtime|default:""}}</td>
+                    </tr>
+                    <tr>
+                        <th>SSH Version</th>
+                        <td>{{session_details.sshversion}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">TTY Log</h3>
+            </div>
+            <div id="ttytarget">
+
+                <asciinema-player src="/ttylog/{{ session_details.session }}" poster="npt:2"></asciinema-player>
+
+            </div>
+        </div>
+    </div>
+
+ </div>
+</div>
+
+
+<!-- a set of tables to hold the list of stuff -->
+
+    <div class="panel panel-default" id="plugin-panel">
+        <div class="panel-heading">
+            <h3 class="panel-title">Auth Attempts</h3>
+        </div>
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Success</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in auth_list %}
+                    <tr>
+                        <td>{{ row.username }}</td>
+                        <td>{{ row.password }}</td>
+                    {% if row.eventid == "cowrie.login.success" %}
+                        <td>Success</td>
+                    {% else %}
+                        <td>Failed</td>
+                    {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="panel panel-default" id="plugin-panel">
+        <div class="panel-heading">
+            <h3 class="panel-title">Input</h3>
+        </div>
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Command</th>
+                    <th>Success</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in input_list %}
+                    <tr>
+                        <td>{{ row.input }}</td>
+                        {% if row.eventid == "cowrie.command.success" %}
+                        <td>Success</td>
+                        {% else %}
+                        <td>Failed</td>
+                    {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/asciinema-player.js' %}"></script>
+{% endblock %}

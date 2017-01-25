@@ -57,31 +57,20 @@
 
 <!-- End Nav -->
 
-{% if error_line %}
+    {% for err in errors %}
 <!-- Error Line -->
 <div class="alert alert-danger alert-dismissible text-center" role="alert">
   <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-  <strong>Doh!</strong> {{error_line}}.
+  <strong>Warning</strong> {{err}}.
 </div>
-{% endif %}
+    {% endfor %}
+
 
 
 <div class="container-fluid">
     <!-- End Header  -->
     {% block content %}{% endblock %}
 </div>
-
-<div id="spinnerdiv" class="spinner">
-    <a href="javascript:void(0)" class="closebtn" onclick="spinnerControl('close')">&times;</a>
-  <!-- Overlay content -->
-  <div class="spinner-content">
-      <h2 id="loadingtext"></h2>
-    <img src="{% static 'img/'|theme:"spinner" %}">
-
-  </div>
-</div>
-
-
   
 <div class="footer">
     <div class="container">

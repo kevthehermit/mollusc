@@ -7,6 +7,7 @@ from common import parse_config, convert_date
 import logging
 from base64 import b64encode
 import asciinema
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 config = parse_config()
@@ -56,17 +57,30 @@ def main_page(request, error_line=None):
     :return:
     """
 
+    # Add warning for debug mode
+
+    errors = []
+
+    if error_line:
+        errors.append(error_line)
+
+    if settings.DEBUG:
+        errors.append("You have debug set to TRUE, this can leak sensitive information if exposed on a public IP.")
+
+
+    print errors
+
     # Check for auth
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return render(request, 'index.html', {'reqauth': True,
-                                                  'error_line': error_line
+                                                  'errors': errors
                                                   })
     sensor_list = db.get_sensors()
     # Main Table is populated with ajax
     return render(request, 'index.html', {'reqauth': False,
                                           'sensor_list': sensor_list,
-                                          'error_line': error_line
+                                          'errors': errors
                                           })
 
 def session_page(request, session_id):

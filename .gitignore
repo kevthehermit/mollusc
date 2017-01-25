@@ -91,3 +91,5 @@ ENV/
 .idea
 .idea/*
 mollusc.conf
+secret_key.py
+moladmin

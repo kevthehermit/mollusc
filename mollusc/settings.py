@@ -149,7 +149,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'VolUtility.log',
+            'filename': 'mollusc.log',
             'formatter': 'verbose'
         },
         'console': {

@@ -108,6 +108,34 @@
             </thead>
             <tbody>
                 {% for row in input_list %}
+                    {% if row.eventid == "cowrie.command.success" %}
+                    <tr class="success">
+                        <td>{{ row.input }}</td>
+                        <td>Success</td>
+                    {% else %}
+                    <tr>
+                        <td>{{ row.input }}</td>
+                        <td>Failed</td>
+                    {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel panel-default" id="plugin-panel">
+        <div class="panel-heading">
+            <h3 class="panel-title">Downloads</h3>
+        </div>
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Command</th>
+                    <th>Success</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in input_list %}
                     <tr>
                         <td>{{ row.input }}</td>
                         {% if row.eventid == "cowrie.command.success" %}
@@ -120,8 +148,6 @@
             </tbody>
         </table>
     </div>
-
-
 {% endblock %}
 
 {% block javascript %}

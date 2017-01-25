@@ -7,8 +7,7 @@ api_type = public
 api_key = None
 
 [style]
-theme = slate.min.css
-spinner = cat_spinner.gif
+theme = spacelab.min.css
 
 [auth]
 enable = False

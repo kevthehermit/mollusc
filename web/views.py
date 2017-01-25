@@ -68,10 +68,15 @@ def main_page(request, error_line=None):
 def session_page(request, session_id):
     # These are all the things i need for the session page.
 
+    print 1
     session_details = db.get_session({'session': session_id})
+    print 2
     auth_list = db.find_auth({'session': session_id})
+    print 3
     input_list = db.get_input({'session': session_id})
+    print 4
     tty_log = db.get_ttylog({'session': session_id})
+    print 5
 
     if tty_log:
         tty_log['ttylog'] = b64encode(tty_log['ttylog'].decode('hex'))
@@ -111,10 +116,13 @@ def ajax_handler(request, command):
 
     if command == 'sessions':
 
+        print 10
+
         total_sessions = db.count_sessions()
+        print 11
         filtered_sessions = db.count_sessions()
 
-
+        print 12
         # Filter before we query
         # If we are paging with datatables
         if 'pagination' in request.POST:
@@ -134,6 +142,8 @@ def ajax_handler(request, command):
                 if search_term not in ['']:
                     searching = True
 
+            print 13
+
             # Sorting
             # Because we dont have a column index we need to create one
             index_table = ['session', 'src_ip', 'dst_port', 'starttime', 'endtime', 'duration', 'success', 'sensor']
@@ -145,6 +155,8 @@ def ajax_handler(request, command):
             else:
                 order = -1
 
+            print 14
+
             # Get matching Rows
             output = db.get_allsessions(start=start, length=length, search_term=search_term, col_name=col_name, order=order)
 
@@ -153,6 +165,7 @@ def ajax_handler(request, command):
 
 
 
+            print 15
 
             # Format Data
             rows = []
@@ -180,7 +193,7 @@ def ajax_handler(request, command):
                     row['sensor']
                 ])
 
-
+            print 16
             datatables = {
                 "draw": int(request.POST['draw']),
                 "recordsTotal": total_sessions,
@@ -192,9 +205,14 @@ def ajax_handler(request, command):
 
         # Else return standard 25 rows
         else:
+
+            print 21
+
             output = db.get_allsessions(start=0, length=25)
 
             rows = []
+
+            print 22
 
             # Check if a session had a valid auth
             for row in output:
@@ -205,6 +223,8 @@ def ajax_handler(request, command):
                         success = True
                 row['success'] = success
 
+
+                print 23
                 # Time formatting
                 starttime = convert_date(row['starttime'])
                 endtime = convert_date(row['endtime'])

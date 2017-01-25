@@ -40,6 +40,7 @@ class Database():
             print 'Error', e
 
     def get_allsessions(self, start=0, length=25, search_term=None, col_name='starttime', order=1):
+        print a
 
         if search_term and col_name:
             cursor = self.col_sessions.find({col_name: {"$regex": u"{}".format(search_term)}})
@@ -51,6 +52,8 @@ class Database():
         else:
             cursor.sort(col_name, pymongo.DESCENDING)
         sessions = cursor.skip(start).limit(length)
+
+        print b
         return [s for s in sessions]
 
     def get_session(self, search):

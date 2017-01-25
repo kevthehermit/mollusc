@@ -32,6 +32,10 @@ def login_page(request):
             else:
                 message = "User does not exist or incorrect password."
                 return main_page(request, error_line=message)
+        else:
+            message = "You need to specify a UserName and Password"
+            return main_page(request, error_line=message)
+
     except Exception as error:
         logger.error(error)
         message = "Unable to login to the Web Panel"

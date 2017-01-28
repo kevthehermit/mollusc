@@ -1,12 +1,10 @@
 # This is a modified version of the asciienam encoder from cowrie
 # Origianal can be found at https://github.com/micheloosterhof/cowrie/blob/master/bin/asciinema
 
-import getopt
 import json
-import os
 import sys
 import struct
-import StringIO
+import string
 
 OP_OPEN, OP_CLOSE, OP_WRITE, OP_EXEC = 1, 2, 3, 4
 TYPE_INPUT, TYPE_OUTPUT, TYPE_INTERACT = 1, 2, 3
@@ -72,7 +70,12 @@ def playlog(fd):
                     sys.stdout.write(color)
 
                 # Handle Unicode
-                data = data.decode('unicode-escape')
+                try:
+                    data = data.decode('unicode-escape')
+                except:
+                    for char in data:
+                        if char not in string.printable:
+                            data.replace(char, '.')
 
                 # rtrox: While playback works properly
                 #        with the asciinema client, upload

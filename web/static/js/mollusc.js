@@ -4,22 +4,6 @@
 
 
 /*
-SpinnerControl opens and closes the loading page
-Not many plugins need to use this.
-
- */
-
-function spinnerControl(state, message){
-    if (state == 'open'){
-        document.getElementById('loadingtext').innerHTML = message;
-       document.getElementById("spinnerdiv").style.width = "100%";
-    } else {
-        document.getElementById("spinnerdiv").style.width = "0%";
-    }
-}
-
-
-/*
 Alert Bar:
 Generates a dismissable alert bar at the top of tha page.
 Params:
@@ -373,7 +357,7 @@ function datatablesAjax(session_id) {
             $('#sessiontable').DataTable({
                 sDom: '<"top"flpr>rt<"bottom"ip><"clear">',
                 oLanguage:{
-                  sProcessing: '<h3 style="position:fixed;top:50%;left:50%;z-index:999999;background:#1a242f;";>Loading. Please Wait.</h3>'
+                  sProcessing: '<div id="OuterBarG"><div id="FrontBarG" class="AnimationG"><div class="BarLineG"></div><div class="BarLineG"></div><div class="BarLineG"></div><div class="BarLineG"></div><div class="BarLineG"></div><div class="BarLineG"></div></div></div>'
                 },
                 processing: true,
                 serverSide: true,

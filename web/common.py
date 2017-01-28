@@ -1,14 +1,15 @@
 import os
 import ConfigParser
 import logging
-import datetime
 import dateutil.parser
 
 logger = logging.getLogger(__name__)
 
 def convert_date(date_string):
-    return dateutil.parser.parse(date_string)
-    #return datetime.strptime(date_string, '')
+    try:
+        return dateutil.parser.parse(date_string)
+    except:
+        return date_string
 
 def parse_config():
     config_dict = {}

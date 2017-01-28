@@ -186,10 +186,15 @@ def ajax_handler(request, command):
                 row['success'] = success
 
                 # Time Stuffs
-                starttime = convert_date(row['starttime'])
-                endtime = convert_date(row['endtime'])
+                if starttime:
+                    starttime = convert_date(row['starttime'])
+                if endtime:
+                    endtime = convert_date(row['endtime'])
+                else:
+                    endtime = starttime
 
                 time_delta = endtime - starttime
+
 
                 rows.append([
                     row['session'],

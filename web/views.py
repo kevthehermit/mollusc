@@ -186,9 +186,9 @@ def ajax_handler(request, command):
                 row['success'] = success
 
                 # Time Stuffs
-                if starttime:
-                    starttime = convert_date(row['starttime'])
-                if endtime:
+                starttime = convert_date(row['starttime'])
+
+                if row['endtime']:
                     endtime = convert_date(row['endtime'])
                 else:
                     endtime = starttime

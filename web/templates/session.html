@@ -80,12 +80,15 @@
             </thead>
             <tbody>
                 {% for row in auth_list %}
+                    {% if row.eventid == "cowrie.login.success" %}
+                    <tr class="success">
+                        <td>{{ row.username }}</td>
+                        <td>{{ row.password }}</td>
+                        <td>Success</td>
+                    {% else %}
                     <tr>
                         <td>{{ row.username }}</td>
                         <td>{{ row.password }}</td>
-                    {% if row.eventid == "cowrie.login.success" %}
-                        <td>Success</td>
-                    {% else %}
                         <td>Failed</td>
                     {% endif %}
                     </tr>
@@ -130,19 +133,17 @@
         <table class="table table-striped table-bordered table-hover">
             <thead>
                 <tr>
-                    <th>Command</th>
-                    <th>Success</th>
+                    <th>URL</th>
+                    <th>FilePath</th>
+                    <th>SHA256</th>
                 </tr>
             </thead>
             <tbody>
-                {% for row in input_list %}
+                {% for row in download_list %}
                     <tr>
-                        <td>{{ row.input }}</td>
-                        {% if row.eventid == "cowrie.command.success" %}
-                        <td>Success</td>
-                        {% else %}
-                        <td>Failed</td>
-                    {% endif %}
+                        <td>{{ row.url }}</td>
+                        <td>{{ row.outfile }}</td>
+                        <td>{{ row.shasum }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

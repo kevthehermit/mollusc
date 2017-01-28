@@ -67,9 +67,6 @@ def main_page(request, error_line=None):
     if settings.DEBUG:
         errors.append("You have debug set to TRUE, this can leak sensitive information if exposed on a public IP.")
 
-
-    print errors
-
     # Check for auth
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
@@ -94,6 +91,7 @@ def session_page(request, session_id):
     auth_list = db.find_auth({'session': session_id})
     input_list = db.get_input({'session': session_id})
     tty_log = db.get_ttylog({'session': session_id})
+    download_list = db.get_downloads({'session': session_id})
 
     if tty_log:
         tty_log['ttylog'] = b64encode(tty_log['ttylog'].decode('hex'))
@@ -101,7 +99,8 @@ def session_page(request, session_id):
     return render(request, 'session.html', {'session_details': session_details,
                                             'auth_list': auth_list,
                                             'input_list': input_list,
-                                            'tty_log': tty_log})
+                                            'tty_log': tty_log,
+                                            'download_list': download_list})
 
 def get_ttylog(request, session_id):
     if 'auth' in config:

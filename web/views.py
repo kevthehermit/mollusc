@@ -8,6 +8,7 @@ import logging
 from base64 import b64encode
 import asciinema
 from django.conf import settings
+import StringIO
 
 logger = logging.getLogger(__name__)
 config = parse_config()
@@ -111,10 +112,9 @@ def get_ttylog(request, session_id):
 
     if tty_log:
         tty_stream = tty_log['ttylog'].decode('hex')
-        with open('/tmp/ttylog.tty', 'wb') as out:
-            out.write(tty_stream)
+        logfd = StringIO.StringIO(tty_stream)
         # Now to convert it to asciinema
-        logfd = open('/tmp/ttylog.tty', 'rb')
+
         json_data = asciinema.playlog(logfd)
     else:
         json_data = {}

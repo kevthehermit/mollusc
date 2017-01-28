@@ -43,6 +43,10 @@
                         <th>SSH Version</th>
                         <td>{{session_details.sshversion}}</td>
                     </tr>
+                    <tr>
+                        <th>Save Asciinema ttylog</th>
+                        <td><a href="http://192.168.1.117:8000/ttylog/{{ session_details.session }}/" download="ttylog_{{ session_details.session }}.json">Download</a></td>
+                    </tr>
                 </table>
             </div>
         </div>

@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+# This is a modified version of the asciienam encoder from cowrie
+# Origianal can be found at https://github.com/micheloosterhof/cowrie/blob/master/bin/asciinema
 
 import getopt
 import json
@@ -19,7 +20,7 @@ COLOR_RESET = '\033[0m'
 def playlog(fd):
 
     settings = {
-        'colorify': 0,
+        'colorify': True,
         'output': ""
     }
 
@@ -70,6 +71,9 @@ def playlog(fd):
                 if settings['colorify'] and color:
                     sys.stdout.write(color)
 
+                # Handle Unicode
+                data = data.decode('unicode-escape')
+
                 # rtrox: While playback works properly
                 #        with the asciinema client, upload
                 #        causes mangling of the data due to
@@ -88,4 +92,4 @@ def playlog(fd):
         elif str(tty) == str(currtty) and op == OP_CLOSE:
             break
 
-    return json.dumps(thelog, indent=4)
+    return json.dumps(thelog, indent=4, ensure_ascii=True)

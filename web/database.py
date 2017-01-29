@@ -82,5 +82,9 @@ class Database():
         return [x for x in sensors]
 
     def get_users(self):
-        users = self.col_auth.find()
+        users = self.col_auth.find({}, {'username': 1, 'password': 1})
         return [x for x in users]
+
+    def get_iplist(self):
+        iplist = self.col_sessions.find({}, {'src_ip': 1})
+        return [x for x in iplist]

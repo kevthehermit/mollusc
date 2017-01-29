@@ -122,7 +122,7 @@ def get_ttylog(request, session_id):
     return HttpResponse(json_data)
 
 
-def feeds(request, feed_type, format):
+def feeds(request, format):
     """
     Returns a machine readble list of source IP's
     :param request:
@@ -133,25 +133,42 @@ def feeds(request, feed_type, format):
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return HttpResponse('Auth Required.')
 
-    if format not in ['CSV', 'JSON']:
+    if format.lower() not in ['csv', 'json', 'list']:
         return main_page(request, error_line='Invalid Feed Format requested')
 
     # Get data
 
+    # This takes too long need to cache,
+
+    '''
+    use cron to create the feeds every hour.
+
+
+    '''
+
     print 1
 
-    if feed_type == 'users':
-        users = db.get_users()
-    elif feed_type == 'passwords':
-        passwords = ''
+    # Get all the things
+    ip_list = db.get_iplist()
 
     print 2
 
-    if format == 'CSV':
-        pass
-    elif format == 'JSON':
+    if format == 'list':
+        return_list = []
+        for ip in ip_list:
+            return_list.append(ip['src_ip'])
+
+        return HttpResponse('\n'.join(set(return_list)))
+
+    elif format == 'json':
         pass
 
+    elif format == 'csv':
+        return_list = []
+        for ip in ip_list:
+            return_list.append(ip['src_ip'])
+
+        return HttpResponse(','.join(set(return_list)))
 
 
 

@@ -182,8 +182,8 @@ def feeds(request, format):
 def passwords(request):
     db_query = db.get_passwords()
     word_list = []
-    for count in db_query:
-        size = count['count'] * 10
+    for count in db_query[:50]:
+        size = count['count']
         word_list.append({'text': count['_id'], 'size': size})
 
     return render(request, 'passwords.html', {'word_list': json.dumps(word_list)})

@@ -80,3 +80,7 @@ class Database():
     def get_sensors(self):
         sensors = self.col_sensors.find()
         return [x for x in sensors]
+
+    def get_users(self):
+        users = self.col_auth.find()
+        return [x for x in users]

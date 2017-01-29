@@ -122,6 +122,34 @@ def get_ttylog(request, session_id):
     return HttpResponse(json_data)
 
 
+def feeds(request, format):
+    """
+    Returns a machine readble list of source IP's
+    :param request:
+    :param format:
+    :return:
+    """
+    if 'auth' in config:
+        if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
+            return HttpResponse('Auth Required.')
+
+    if format not in ['CSV', 'JSON']:
+        return main_page(request, error_line='Invalid Feed Format requested')
+
+    # Get users
+
+    print 1
+    users = db.get_users()
+    print 2
+
+    if format == 'CSV':
+        pass
+    elif format == 'JSON':
+        pass
+
+
+
+
 @csrf_exempt
 def ajax_handler(request, command):
     """

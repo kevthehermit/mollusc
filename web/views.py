@@ -10,6 +10,7 @@ import asciinema
 from django.conf import settings
 import StringIO
 import json
+from wordcloud import WordCloud
 
 logger = logging.getLogger(__name__)
 config = parse_config()
@@ -184,14 +185,14 @@ def passwords(request):
 
     db_query = db.get_passwords()
     word_list = []
-    for count in db_query[:50]:
+    for count in db_query[:100]:
         size = count['count']
         word_list.append((count['_id'], size))
         #word_list.append({'text': count['_id'], 'size': size})
 
-    from wordcloud import WordCloud
 
-    word_cloud = WordCloud().generate_from_frequencies(word_list)
+
+    word_cloud = WordCloud(background_color="white", width=800, height=300).generate_from_frequencies(word_list)
 
     image = word_cloud.to_file('web/static/image.jpg')
 

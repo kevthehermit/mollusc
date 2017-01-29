@@ -1,3 +1,7 @@
 django
 datetutil
 pymongo
+pillow
+wordcloud
+numpy
+matplotlib

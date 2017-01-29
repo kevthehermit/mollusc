@@ -180,11 +180,20 @@ def feeds(request, format):
         return response
 
 def passwords(request):
+
+
     db_query = db.get_passwords()
     word_list = []
     for count in db_query[:50]:
         size = count['count']
-        word_list.append({'text': count['_id'], 'size': size})
+        word_list.append((count['_id'], size))
+        #word_list.append({'text': count['_id'], 'size': size})
+
+    from wordcloud import WordCloud
+
+    word_cloud = WordCloud().generate_from_frequencies(word_list)
+
+    image = word_cloud.to_file('web/static/image.jpg')
 
     return render(request, 'passwords.html', {'word_list': json.dumps(word_list)})
 

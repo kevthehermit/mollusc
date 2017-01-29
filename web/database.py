@@ -95,6 +95,10 @@ class Database():
         this = list(self.col_auth.aggregate(pipeline))
         return this
 
+    def all_passwords(self):
+        passwords = self.col_auth.find({}, {'password': 1})
+        return [x for x in passwords]
+
     def get_iplist(self):
         iplist = self.col_sessions.find({}, {'src_ip': 1})
         return [x for x in iplist]

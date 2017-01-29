@@ -122,7 +122,7 @@ def get_ttylog(request, session_id):
     return HttpResponse(json_data)
 
 
-def feeds(request, format):
+def feeds(request, feed_type, format):
     """
     Returns a machine readble list of source IP's
     :param request:
@@ -136,10 +136,15 @@ def feeds(request, format):
     if format not in ['CSV', 'JSON']:
         return main_page(request, error_line='Invalid Feed Format requested')
 
-    # Get users
+    # Get data
 
     print 1
-    users = db.get_users()
+
+    if feed_type == 'users':
+        users = db.get_users()
+    elif feed_type == 'passwords':
+        passwords = ''
+
     print 2
 
     if format == 'CSV':

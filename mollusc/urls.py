@@ -30,4 +30,6 @@ urlpatterns = [
     url(r'^ttylog/(?P<session_id>.+)/$', views.get_ttylog),
     # AjaxHandlers
     url(r'^ajaxhandler/(?P<command>.+)/$', views.ajax_handler),
+    # Feeds
+    url(r'^feeds/(?P<feed_type>.+)/(?P<format>.+)/$', views.feeds),
 ]

@@ -1,6 +1,7 @@
 import json
 import pymongo
 from bson.objectid import ObjectId
+from bson.son import SON
 from common import parse_config
 
 config = parse_config()
@@ -84,6 +85,15 @@ class Database():
     def get_users(self):
         users = self.col_auth.find({}, {'username': 1, 'password': 1})
         return [x for x in users]
+
+    def get_passwords(self):
+        pipeline = [
+            {"$unwind": "$password"},
+            {"$group": {"_id": "$password", "count": {"$sum": 1}}},
+            {"$sort": SON([("count", -1), ("_id", -1)])}
+            ]
+        this = list(self.col_auth.aggregate(pipeline))
+        return this
 
     def get_iplist(self):
         iplist = self.col_sessions.find({}, {'src_ip': 1})

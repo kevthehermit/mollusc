@@ -32,4 +32,6 @@ urlpatterns = [
     url(r'^ajaxhandler/(?P<command>.+)/$', views.ajax_handler),
     # Feeds
     url(r'^feeds/(?P<format>.+)/$', views.feeds),
+    # Passwords
+    url(r'^passwords/', views.passwords),
 ]

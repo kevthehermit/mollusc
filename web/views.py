@@ -9,6 +9,7 @@ from base64 import b64encode
 import asciinema
 from django.conf import settings
 import StringIO
+import json
 
 logger = logging.getLogger(__name__)
 config = parse_config()
@@ -146,19 +147,21 @@ def feeds(request, format):
 
     '''
 
-    print 1
-
     # Get all the things
     ip_list = db.get_iplist()
-
-    print 2
 
     if format == 'list':
         return_list = []
         for ip in ip_list:
             return_list.append(ip['src_ip'])
 
-        return HttpResponse('\n'.join(set(return_list)))
+        # create a basic list
+        file_data = '\n'.join(set(return_list))
+
+        # Create the reponse object
+        response = HttpResponse(file_data, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename="ip_list.txt"'
+        return response
 
     elif format == 'json':
         pass
@@ -168,9 +171,22 @@ def feeds(request, format):
         for ip in ip_list:
             return_list.append(ip['src_ip'])
 
-        return HttpResponse(','.join(set(return_list)))
+        # create a basic list
+        file_data = '\n'.join(set(return_list))
 
+        # Create the reponse object
+        response = HttpResponse(file_data, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename="ip_list.txt"'
+        return response
 
+def passwords(request):
+    db_query = db.get_passwords()
+    word_list = []
+    for count in db_query:
+        size = count['count'] * 10
+        word_list.append({'text': count['_id'], 'size': size})
+
+    return render(request, 'passwords.html', {'word_list': json.dumps(word_list)})
 
 @csrf_exempt
 def ajax_handler(request, command):

@@ -190,13 +190,17 @@ def passwords(request):
         word_list.append((count['_id'], size))
         #word_list.append({'text': count['_id'], 'size': size})
 
-
-
     word_cloud = WordCloud(background_color="white", width=800, height=300).generate_from_frequencies(word_list)
 
-    image = word_cloud.to_file('web/static/image.jpg')
+    image = word_cloud.to_image()
+    import io
 
-    return render(request, 'passwords.html', {'word_list': json.dumps(word_list)})
+    imgBytes = io.BytesIO()
+    image.save(imgBytes, format='PNG')
+
+    b64_image = b64encode(imgBytes.getvalue())
+
+    return render(request, 'passwords.html', {'word_list': json.dumps(word_list), 'b64_image': b64_image})
 
 @csrf_exempt
 def ajax_handler(request, command):

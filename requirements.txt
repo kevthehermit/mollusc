@@ -5,3 +5,4 @@ pillow
 wordcloud
 numpy
 matplotlib
+shodan

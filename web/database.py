@@ -95,6 +95,33 @@ class Database():
         this = list(self.col_auth.aggregate(pipeline))
         return this
 
+    def get_usernames(self):
+        pipeline = [
+            {"$unwind": "$username"},
+            {"$group": {"_id": "$username", "count": {"$sum": 1}}},
+            {"$sort": SON([("count", -1), ("_id", -1)])}
+            ]
+        this = list(self.col_auth.aggregate(pipeline))
+        return this
+
+    def get_commands(self):
+        pipeline = [
+            {"$unwind": "$input"},
+            {"$group": {"_id": "$input", "count": {"$sum": 1}}},
+            {"$sort": SON([("count", -1), ("_id", -1)])}
+            ]
+        this = list(self.col_input.aggregate(pipeline))
+        return this
+
+    def get_downloads(self):
+        pipeline = [
+            {"$unwind": "$url"},
+            {"$group": {"_id": "$url", "count": {"$sum": 1}}},
+            {"$sort": SON([("count", -1), ("_id", -1)])}
+            ]
+        this = list(self.col_downloads.aggregate(pipeline))
+        return this
+
     def all_passwords(self):
         passwords = self.col_auth.find({}, {'password': 1})
         return [x for x in passwords]

@@ -11,6 +11,9 @@ from django.conf import settings
 import StringIO
 import json
 from wordcloud import WordCloud
+import geoip2.database
+import os
+import shodan
 
 logger = logging.getLogger(__name__)
 config = parse_config()
@@ -96,6 +99,17 @@ def session_page(request, session_id):
     tty_log = db.get_ttylog({'session': session_id})
     download_list = db.get_downloads({'session': session_id})
 
+    # Modify some values
+
+    if 'telnet' in session_details['system']:
+        honey_type = 'Telnet'
+    elif 'ssh' in session_details['system']:
+        honey_type = 'SSH'
+    else:
+        honey_type = 'Unknown'
+
+    session_details['system'] = honey_type
+
     if tty_log:
         tty_log['ttylog'] = b64encode(tty_log['ttylog'].decode('hex'))
 
@@ -123,8 +137,43 @@ def get_ttylog(request, session_id):
 
     return HttpResponse(json_data)
 
+def ipaddress_page(request, ipadd):
+    errors = []
+    ip_details = {}
+    ip_details['IP'] = ipadd
 
-def feeds(request, format):
+    # Get the database from
+    # https://dev.maxmind.com/geoip/geoip2/geolite2/
+
+
+    maxmind_city_db = '/usr/share/GeoIP/GeoLite2-City.mmdb'
+    if not os.path.exists(maxmind_city_db):
+        raise IOError("Unable to locate GeoLite2-City.mmdb")
+
+    reader = geoip2.database.Reader(maxmind_city_db)
+    record = reader.city(ipadd)
+
+
+    if not record.country.name:
+        ip_details['country_name'] = 'Unknown'
+    else:
+        ip_details['country_name'] = record.country.name
+
+    ip_details['timezone'] = record.location.time_zone
+
+    ip_details['long'] = record.location.longitude
+    ip_details['lat'] = record.location.latitude
+
+    # we also need a maps api key
+
+    api_key = config['maps']['api_key']
+    if api_key == 'enter key here':
+        errors.append('Missing API Key')
+
+    return render(request, 'ipaddress.html', {'ip_details': ip_details, 'errors': errors})
+
+
+def feeds(request, datatype, format):
     """
     Returns a machine readble list of source IP's
     :param request:
@@ -140,49 +189,123 @@ def feeds(request, format):
 
     # Get data
 
-    # This takes too long need to cache,
+    data_list = []
 
-    '''
-    use cron to create the feeds every hour.
+    if datatype == 'passwords':
+        count = db.get_passwords()
+        for row in count:
+            data_list.append('{0},{1}'.format(row['_id'], row['count']))
+        download_name = 'passwords.csv'
+
+    elif datatype == 'usernames':
+        count = db.get_usernames()
+        for row in count:
+            data_list.append('{0},{1}'.format(row['_id'], row['count']))
+        download_name = 'usernames.csv'
 
 
-    '''
+    elif datatype == 'ip':
+        ip_list = db.get_iplist()
+        data_list = []
+        for ip in ip_list:
+            data_list.append(ip['src_ip'])
+        download_name = "ip_list.txt"
 
-    # Get all the things
-    ip_list = db.get_iplist()
+    else:
+        return HttpResponseServerError
+
 
     if format == 'list':
-        return_list = []
-        for ip in ip_list:
-            return_list.append(ip['src_ip'])
-
         # create a basic list
-        file_data = '\n'.join(set(return_list))
-
+        file_data = '\n'.join(set(data_list))
         # Create the reponse object
         response = HttpResponse(file_data, content_type='text/plain')
-        response['Content-Disposition'] = 'attachment; filename="ip_list.txt"'
+        response['Content-Disposition'] = 'attachment; filename="{0}"'.format(download_name)
         return response
 
     elif format == 'json':
         pass
 
     elif format == 'csv':
-        return_list = []
-        for ip in ip_list:
-            return_list.append(ip['src_ip'])
-
-        # create a basic list
-        file_data = '\n'.join(set(return_list))
-
+        # create a csv string
+        file_data = ','.join(set(data_list))
         # Create the reponse object
         response = HttpResponse(file_data, content_type='text/plain')
-        response['Content-Disposition'] = 'attachment; filename="ip_list.txt"'
+        response['Content-Disposition'] = 'attachment; filename="{0}.csv"'.format(download_name[:-3])
         return response
 
+
+
 def passwords(request):
+    if 'auth' in config:
+        if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
+            return HttpResponse('Auth Required.')
+    pass_count = db.get_passwords()
 
+    print pass_count
 
+    seq = [x['_id'] for x in pass_count]
+    longest = max(seq, key=len)
+    shortest = min(seq, key=len)
+
+    return render(request, 'passwords.html', {'pass_count': pass_count[:20],
+                                              'count_total': len(pass_count),
+                                              'longest': longest,
+                                              'shortest': shortest
+                                              })
+
+def usernames(request):
+    if 'auth' in config:
+        if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
+            return HttpResponse('Auth Required.')
+
+    user_count = db.get_usernames()
+    seq = [x['_id'] for x in user_count]
+    longest = max(seq, key=len)
+    shortest = min(seq, key=len)
+
+    return render(request, 'usernames.html', {'user_count': user_count[:20],
+                                              'count_total': len(user_count),
+                                              'longest': longest,
+                                              'shortest': shortest
+                                              })
+
+def commands_page(request):
+    if 'auth' in config:
+        if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
+            return HttpResponse('Auth Required.')
+
+    count = db.get_commands()
+    seq = [x['_id'] for x in count]
+    longest = max(seq, key=len)
+    shortest = min(seq, key=len)
+
+    return render(request, 'commands.html', {'count': count[:20],
+                                              'count_total': len(count),
+                                              'longest': longest,
+                                              'shortest': shortest
+                                              })
+
+def downloads_page(request):
+    if 'auth' in config:
+        if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
+            return HttpResponse('Auth Required.')
+
+    count = db.get_downloads()
+    seq = [x['_id'] for x in count]
+    longest = max(seq, key=len)
+    shortest = min(seq, key=len)
+
+    return render(request, 'downloads.html', {'count': count[:20],
+                                              'count_total': len(count),
+                                              'longest': longest,
+                                              'shortest': shortest
+                                              })
+
+def wordclouds(request):
+    if 'auth' in config:
+        if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
+            return HttpResponse('Auth Required.')
     db_query = db.get_passwords()
     word_list = []
     for count in db_query[:100]:
@@ -213,6 +336,17 @@ def ajax_handler(request, command):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return HttpResponse('Auth Required.')
+
+    if command == 'shodan':
+        ipadd = request.POST['ipadd']
+        if config['shodan']['enabled'].lower() == 'true':
+            shodan_key = config['shodan']['api_key']
+            shodan_api = shodan.Shodan(shodan_key)
+            try:
+                host = shodan_api.host(ipadd)
+                print host
+            except shodan.APIError as e:
+                print e
 
     if command == 'sessions':
 

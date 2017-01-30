@@ -11,3 +11,11 @@ theme = spacelab.min.css
 
 [auth]
 enable = False
+
+[maps]
+# https://developers.google.com/maps/documentation/javascript/get-api-key
+api_key = please enter your key
+
+[shodan]
+enabled = False
+api_key =

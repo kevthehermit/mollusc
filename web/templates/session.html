@@ -28,8 +28,16 @@
                         <td>{{session_details.sensor}}</td>
                     </tr>
                     <tr>
+                        <th>Honeypot Type</th>
+                        <td>{{session_details.system}}</td>
+                    </tr>
+                    <tr>
                         <th>Source IP</th>
-                        <td id="sessionID">{{session_details.src_ip}}</td>
+                        <td id="sessionID"><a href="/ipaddress/{{session_details.src_ip}}/">{{session_details.src_ip}}</a></td>
+                    </tr>
+                    <tr>
+                        <th>Source Port</th>
+                        <td>{{session_details.src_port}}</td>
                     </tr>
                     <tr>
                         <th>Start Time</th>

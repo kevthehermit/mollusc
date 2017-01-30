@@ -95,7 +95,7 @@ class Database():
         this = list(self.col_auth.aggregate(pipeline))
         return this
 
-    def get_usernames(self):
+    def get_allusernames(self):
         pipeline = [
             {"$unwind": "$username"},
             {"$group": {"_id": "$username", "count": {"$sum": 1}}},
@@ -104,7 +104,7 @@ class Database():
         this = list(self.col_auth.aggregate(pipeline))
         return this
 
-    def get_commands(self):
+    def get_allcommands(self):
         pipeline = [
             {"$unwind": "$input"},
             {"$group": {"_id": "$input", "count": {"$sum": 1}}},
@@ -113,7 +113,7 @@ class Database():
         this = list(self.col_input.aggregate(pipeline))
         return this
 
-    def get_downloads(self):
+    def get_alldownloads(self):
         pipeline = [
             {"$unwind": "$url"},
             {"$group": {"_id": "$url", "count": {"$sum": 1}}},

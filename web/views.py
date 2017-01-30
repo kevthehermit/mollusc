@@ -259,7 +259,7 @@ def usernames(request):
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return HttpResponse('Auth Required.')
 
-    user_count = db.get_usernames()
+    user_count = db.get_allusernames()
     seq = [x['_id'] for x in user_count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
@@ -275,7 +275,7 @@ def commands_page(request):
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return HttpResponse('Auth Required.')
 
-    count = db.get_commands()
+    count = db.get_allcommands()
     seq = [x['_id'] for x in count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
@@ -291,7 +291,7 @@ def downloads_page(request):
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return HttpResponse('Auth Required.')
 
-    count = db.get_downloads()
+    count = db.get_alldownloads()
     seq = [x['_id'] for x in count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)

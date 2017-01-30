@@ -81,11 +81,14 @@ def main_page(request, error_line=None):
                                                   'errors': errors
                                                   })
     sensor_list = db.get_sensors()
-
     endtime = datetime.datetime.now()
     starttime = endtime - datetime.timedelta(days=7)
 
-    timelines = db.get_timeline({'starttime': {'$gte': starttime, '$lt': endtime}})
+
+
+    timelines = db.get_timeline(starttime.isoformat(), endtime.isoformat())
+
+    print timelines
 
 
     #ToDo: There are too many dates here.

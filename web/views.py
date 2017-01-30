@@ -14,6 +14,7 @@ from wordcloud import WordCloud
 import geoip2.database
 import os
 import shodan
+import datetime
 
 logger = logging.getLogger(__name__)
 config = parse_config()
@@ -81,7 +82,15 @@ def main_page(request, error_line=None):
                                                   })
     sensor_list = db.get_sensors()
 
-    timelines = db.get_timeline()
+    endtime = datetime.datetime.now()
+    starttime = endtime - datetime.timedelta(days=7)
+
+    timelines = db.get_timeline({'starttime': {'$gte': starttime, '$lt': endtime}})
+
+
+    #ToDo: There are too many dates here.
+    # To mkae it usable just grab the last weeks worth and display this.
+    # Then on the sensor page allow a variable time entry
 
     # Get all dates per sensor for the timeline.
     timeline_string = ''

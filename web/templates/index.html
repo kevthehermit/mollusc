@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% load customtags %}
 
 {% block title %}Mollusc{% endblock %}
@@ -57,6 +58,23 @@
     </div>
 
 
+<!-- TimeLine -->
+    <div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">TimeLine</h3>
+    </div>
+
+    <div class="panel-body">
+        <div id="timelinetarget"></div>
+    </div>
+    </div>
+
+<!-- End TimeLine -->
+
+
+
+
+
 <!-- List Sessions -->
 
 <div class="panel panel-default">
@@ -83,4 +101,24 @@ $( document ).ready(function() {
     datatablesAjax('false');
 });
 </script>
+<script src="{% static 'js/d3.min.js' %}"></script>
+<script src="{% static 'js/eventDrops.js' %}"></script>
+
+<script>
+// TimeLine
+
+var data = [
+  { name: "http requests", data: [new Date('2017/01/15 13:24:54'), new Date('2017/01/15 13:25:03'), new Date('2017/01/15 13:25:05')] },
+  { name: "SQL queries", data: [new Date('2017/01/15 13:24:57'), new Date('2017/01/15 13:25:04'), new Date('2017/01/15 13:25:04')] },
+  { name: "cache invalidations", data: [new Date('2017/01/15 13:25:12')] }
+];
+
+var eventDropsChart = d3.chart.eventDrops();
+d3.select('#timelinetarget')
+  .datum(data)
+  .call(eventDropsChart);
+
+
+</script>
+
 {% endblock %}

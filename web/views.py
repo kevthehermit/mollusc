@@ -242,8 +242,6 @@ def passwords(request):
             return HttpResponse('Auth Required.')
     pass_count = db.get_passwords()
 
-    print pass_count
-
     seq = [x['_id'] for x in pass_count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)

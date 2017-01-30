@@ -83,8 +83,6 @@ def main_page(request, error_line=None):
 
     timelines = db.get_timeline()
 
-    print timelines
-
     # Get all dates per sensor for the timeline.
     timeline_string = ''
 

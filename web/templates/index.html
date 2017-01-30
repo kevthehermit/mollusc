@@ -107,16 +107,28 @@ $( document ).ready(function() {
 <script>
 // TimeLine
 
+var now = Date.now();
+var timeShift = 10 * 24 * 60 * 60 * 1000;
+var endTime = now + timeShift;
+var startTime = now - timeShift;
+
+
 var data = [
-  { name: "http requests", data: [new Date('2017/01/15 13:24:54'), new Date('2017/01/15 13:25:03'), new Date('2017/01/15 13:25:05')] },
-  { name: "SQL queries", data: [new Date('2017/01/15 13:24:57'), new Date('2017/01/15 13:25:04'), new Date('2017/01/15 13:25:04')] },
-  { name: "cache invalidations", data: [new Date('2017/01/15 13:25:12')] }
+    {{ timeline | safe }}
 ];
 
+
 var eventDropsChart = d3.chart.eventDrops();
+eventDropsChart.start(new Date(startTime))
+        .margin({ top: 60, left: 200, bottom: 40, right: 50 })
+        .end(new Date(now))
+        .eventLineColor(function(e){return e.color;})
+
+;
+
 d3.select('#timelinetarget')
   .datum(data)
-  .call(eventDropsChart);
+  .call(eventDropsChart)
 
 
 </script>

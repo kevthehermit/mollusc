@@ -1,8 +1,9 @@
 django
-datetutil
+python-datetutil
 pymongo
 pillow
 wordcloud
 numpy
 matplotlib
 shodan
+geoip2

@@ -80,10 +80,40 @@ def main_page(request, error_line=None):
                                                   'errors': errors
                                                   })
     sensor_list = db.get_sensors()
+
+    timelines = db.get_timeline()
+
+    print timelines
+
+    # Get all dates per sensor for the timeline.
+    timeline_string = ''
+
+    for sensor, dates in timelines.iteritems():
+        sensor_string = '{{ name: "{0}", data: ['.format(sensor)
+        for date in dates:
+            sensor_string += 'new Date(\'{0}\'),'.format(date['starttime'])
+
+        sensor_string += '], color: "{0}"}},\n'.format('blue')
+        timeline_string += sensor_string
+
+    '''
+    { name: "http requests", data: [new Date('2017/01/30 13:24:54'), new Date('2017/01/30 13:25:03'), new Date('2017/01/30 13:25:05')] , color: "blue"},
+
+
+  { name: "http requests", data: [new Date('2017/01/30 13:24:54'), new Date('2017/01/30 13:25:03'), new Date('2017/01/30 13:25:05')] , color: "blue"},
+  { name: "SQL queries", data: [new Date('2017/01/30 13:24:57'), new Date('2017/01/30 13:25:04'), new Date('2017/01/30 13:25:04')]  , color: "green"},
+  { name: "cache invalidations", data: [new Date('2017/01/30 13:25:12')]  , color: "red"}
+
+
+    '''
+
+
+
     # Main Table is populated with ajax
     return render(request, 'index.html', {'reqauth': False,
                                           'sensor_list': sensor_list,
-                                          'errors': errors
+                                          'errors': errors,
+                                          'timeline': timeline_string
                                           })
 
 def session_page(request, session_id):
@@ -151,24 +181,32 @@ def ipaddress_page(request, ipadd):
         raise IOError("Unable to locate GeoLite2-City.mmdb")
 
     reader = geoip2.database.Reader(maxmind_city_db)
-    record = reader.city(ipadd)
+    try:
+        record = reader.city(ipadd)
 
+        if not record.country.name:
+            ip_details['country_name'] = 'Unknown'
+        else:
+            ip_details['country_name'] = record.country.name
 
-    if not record.country.name:
-        ip_details['country_name'] = 'Unknown'
-    else:
-        ip_details['country_name'] = record.country.name
+        ip_details['timezone'] = record.location.time_zone
 
-    ip_details['timezone'] = record.location.time_zone
+        ip_details['long'] = record.location.longitude
+        ip_details['lat'] = record.location.latitude
 
-    ip_details['long'] = record.location.longitude
-    ip_details['lat'] = record.location.latitude
+    except Exception as e:
+        errors.append("Geo Lookup Failed: {0}".format(e))
+        ip_details['country_name'] = "Unknown"
+        ip_details['timezone'] = "Unknown"
+        ip_details['lat'] = "Unknown"
+        ip_details['long'] = "Unknown"
+
 
     # we also need a maps api key
 
     api_key = config['maps']['api_key']
     if api_key == 'enter key here':
-        errors.append('Missing API Key')
+        errors.append('Missing Maps API Key')
 
     return render(request, 'ipaddress.html', {'ip_details': ip_details, 'errors': errors})
 

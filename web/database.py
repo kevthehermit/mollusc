@@ -58,6 +58,18 @@ class Database():
         cursor = self.col_sessions.find_one(search)
         return cursor
 
+    def get_timeline(self):
+        sensors = self.col_sensors.find()
+        data = {}
+        for sensor in sensors:
+            rows = self.col_sessions.find({'sensor': sensor['sensor']}, {'starttime': 1})
+            data[sensor['sensor']] = [x for x in rows]
+
+        return data
+
+
+
+
     def count_sessions(self):
         count = self.col_sessions.find().count()
         return count

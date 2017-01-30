@@ -82,7 +82,7 @@ def main_page(request, error_line=None):
                                                   })
     sensor_list = db.get_sensors()
     endtime = datetime.datetime.now()
-    starttime = endtime - datetime.timedelta(days=1)
+    starttime = endtime - datetime.timedelta(days=7)
 
     timelines = db.get_timeline(starttime.isoformat(), endtime.isoformat())
 

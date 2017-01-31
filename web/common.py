@@ -2,6 +2,8 @@ import os
 import ConfigParser
 import logging
 import dateutil.parser
+from django.conf import settings
+BASE_DIR = settings.BASE_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -14,9 +16,8 @@ def convert_date(date_string):
 def parse_config():
     config_dict = {}
     config = ConfigParser.ConfigParser(allow_no_value=True)
-    curr_dir = os.path.dirname(__file__)
 
-    conf_path = os.path.join(curr_dir, 'mollusc.conf')
+    conf_path = os.path.join(BASE_DIR, 'mollusc.conf')
 
     if os.path.exists(conf_path):
         conf_file = conf_path

@@ -93,7 +93,12 @@ class Database():
 
     def get_sensors(self):
         sensors = self.col_sensors.find()
-        return [x for x in sensors]
+        data = []
+        for sensor in sensors:
+            last = self.col_sessions.find({'sensor': sensor['sensor']}, {'starttime': 1}).sort([('starttime', -1)]).limit(1)
+            first = self.col_sessions.find_one()
+            data.append({'sensor': sensor['sensor'], 'dst_ip': sensor['dst_ip'], 'last': last[0]['starttime'], 'first':first['starttime'] })
+        return data
 
     def get_users(self):
         users = self.col_auth.find({}, {'username': 1, 'password': 1})

@@ -43,6 +43,8 @@
     <tr>
         <th>Sensor</th>
         <th>Sensor IP</th>
+        <th>First Session</th>
+        <th>Last Session</th>
     </tr>
     </thead>
     <tbody>
@@ -50,6 +52,8 @@
     <tr>
         <td class="clickable" onclick="document.location = '/sensor/{{row.sensor}}/';">{{ row.sensor }}</td>
         <td class="clickable" onclick="document.location = '/sensor/{{row.sensor}}/';">{{ row.dst_ip }}</td>
+        <td class="clickable" onclick="document.location = '/sensor/{{row.sensor}}/';">{{ row.first }}</td>
+        <td class="clickable" onclick="document.location = '/sensor/{{row.sensor}}/';">{{ row.last }}</td>
     </tr>
     {% endfor %}
     </tbody>

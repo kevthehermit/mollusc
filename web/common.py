@@ -14,13 +14,16 @@ def convert_date(date_string):
 def parse_config():
     config_dict = {}
     config = ConfigParser.ConfigParser(allow_no_value=True)
+    curr_dir = os.path.dirname(__file__)
 
-    if os.path.exists('mollusc.conf'):
-        conf_file = 'mollusc.conf'
+    conf_path = os.path.join(curr_dir, 'mollusc.conf')
+
+    if os.path.exists(conf_path):
+        conf_file = conf_path
 
     else:
-        conf_file = 'mollusc.conf.sample'
-        logger.warning('Using default config file. Check your mollusc.conf.conf file exists')
+        conf_file = '{0}.sample'.format(conf_path)
+        logger.warning('Using default config file. Check your mollusc.conf file exists')
 
     valid = config.read(conf_file)
     if len(valid) > 0:
@@ -32,7 +35,7 @@ def parse_config():
             config_dict[section] = section_dict
     else:
         config_dict['valid'] = False
-        logger.error('Unable to find a valid volutility.conf file.')
+        logger.error('Unable to find a valid mollusc.conf file.')
 
     logger.info("Loaded configuration from {0}".format(conf_file))
 

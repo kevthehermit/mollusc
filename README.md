@@ -34,7 +34,7 @@ Auth steps here
 
 ### Mollusc Installation
 
-- sudo apt-get install git libjpeg-dev python-dev python-pip python-numpy python-matplotlib
+- sudo apt-get install git libjpeg-dev python-dev python-pip python-numpy python-matplotlib geoip-database
 - git clone https://github.com/kevthehermit/mollusc
 - cd mollusc
 - sudo pip install -r requirements.txt
@@ -91,6 +91,14 @@ If you are not using auth and are local you can use
 connection_string = mongodb://localhost/cowrie
 database = cowrie
 ```
+
+make sure you install pymongo on your cowrie install if using virtualenv as per the cowrie install guide
+
+- ```source cowrie-env/bin/activate```
+- ```pip install pymongo```
+- ```deactivate```
+
+
 Now start cowrie as normal. 
 
 
@@ -112,7 +120,57 @@ This can allow debug messages to be shown externally if enabled on a public IP a
 
 To mitigate this there are a couple of options. 
 
-You can disable the development server and run with wsgi / apache - Instructions to follow
+You can disable the development server and run with wsgi / apache 
 
+make sure your entire mollusc directory is in /opt/
+
+mv mollusc/ /opt/
+
+- sudo apt-get install apache2 libapache2-mod-wsgi
+- sudo nano /etc/apache2/sites-availiable/mollusc.conf
+
+```
+<VirtualHost _default_:80>
+    ServerName yourdomainname.com
+    Alias /robots.txt /opt/mollusc/web/static/robots.txt
+    Alias /favicon.ico /opt/mollusc/web/static/images/favicon.ico
+    
+    # Static Files
+    Alias /static/ /opt/mollusc/web/static/
+    <Directory /opt/mollusc/web/static>
+      Require all granted
+    </Directory>
+    
+    # The app
+    
+    WSGIDaemonProcess mollusc user=www-data group=www-data python-path=/opt/mollusc
+    WSGIScriptAlias / /opt/mollusc/mollusc/wsgi.py process-group=mollusc application-group=%{GLOBAL}
+    
+    <Directory /opt/mollusc/mollusc>
+      <Files wsgi.py>
+        Require all granted
+      </Files>
+    </Directory>
+
+    
+    # Logging
+    ErrorLog ${APACHE_LOG_DIR}/mollusc_error.log
+    CustomLog ${APACHE_LOG_DIR}/mollusc_access.log combined
+</VirtualHost>
+```
+
+- nano /opt/mollusc/mollusc/settings.py
+
+change debug = True to debug = False
+
+- sudo chown -R www-data:www-data /opt/mollusc
+- cd /etc/apache2/sites-availiable
+- sudo a2dissite 000-default.conf
+- sudo a2ensite mollusc.conf
+- sudo service apache2 reload
+
+
+
+Or you 
 You can edit the settings.py file and modify the allowed hosts file. 
 

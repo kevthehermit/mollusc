@@ -149,7 +149,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'mollusc.log',
+            'filename': '/var/log/mollusc.log',
             'formatter': 'verbose'
         },
         'console': {

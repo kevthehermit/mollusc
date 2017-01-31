@@ -9,6 +9,7 @@ from base64 import b64encode
 import asciinema
 from django.conf import settings
 import StringIO
+import io
 import json
 from wordcloud import WordCloud
 import geoip2.database
@@ -301,6 +302,23 @@ def passwords(request):
             return HttpResponse('Auth Required.')
     pass_count = db.count_passwords()
 
+
+    word_list = []
+    for count in pass_count[:100]:
+        size = count['count']
+        word_list.append((count['_id'], size))
+        #word_list.append({'text': count['_id'], 'size': size})
+
+    word_cloud = WordCloud(background_color="white", width=800, height=300).generate_from_frequencies(word_list)
+
+    image = word_cloud.to_image()
+
+    imgBytes = io.BytesIO()
+    image.save(imgBytes, format='PNG')
+
+    b64_image = b64encode(imgBytes.getvalue())
+
+
     seq = [x['_id'] for x in pass_count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
@@ -308,7 +326,8 @@ def passwords(request):
     return render(request, 'passwords.html', {'pass_count': pass_count[:20],
                                               'count_total': len(pass_count),
                                               'longest': longest,
-                                              'shortest': shortest
+                                              'shortest': shortest,
+                                              'b64_image': b64_image
                                               })
 
 def usernames(request):
@@ -317,6 +336,23 @@ def usernames(request):
             return HttpResponse('Auth Required.')
 
     user_count = db.count_usernames()
+
+    word_list = []
+    for count in user_count[:100]:
+        size = count['count']
+        word_list.append((count['_id'], size))
+        #word_list.append({'text': count['_id'], 'size': size})
+
+    word_cloud = WordCloud(background_color="white", width=800, height=300).generate_from_frequencies(word_list)
+
+    image = word_cloud.to_image()
+
+    imgBytes = io.BytesIO()
+    image.save(imgBytes, format='PNG')
+
+    b64_image = b64encode(imgBytes.getvalue())
+
+
     seq = [x['_id'] for x in user_count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
@@ -324,7 +360,8 @@ def usernames(request):
     return render(request, 'usernames.html', {'user_count': user_count[:20],
                                               'count_total': len(user_count),
                                               'longest': longest,
-                                              'shortest': shortest
+                                              'shortest': shortest,
+                                              'b64_image': b64_image
                                               })
 
 def commands_page(request):
@@ -441,7 +478,9 @@ def ajax_handler(request, command):
                 order = -1
 
             # Get matching Rows
-            output = db.get_allsessions(start=start, length=length, search_term=search_term, col_name=col_name, order=order)
+            #output = db.get_allsessions(start=start, length=length, search_term=search_term, col_name=col_name, order=order)
+
+            output = db.get_pagequery('sessions', start, length, search_term, col_name, order)
 
             if searching:
                 filtered_sessions = len(output)

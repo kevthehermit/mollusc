@@ -40,6 +40,25 @@ class Database():
         except Exception as e:
             print 'Error', e
 
+
+    def get_pagequery(self, collection, start, length, search_term, col_name, order):
+
+        # If we want to search we need to do that first.
+
+        # First run the query with the limits.
+        query = self.col_sessions.find()[start:start+length]
+
+        # Order the list
+
+        if order == 1:
+            query.sort(col_name, pymongo.ASCENDING)
+        else:
+            query.sort(col_name, pymongo.DESCENDING)
+
+        # return the query
+
+        return [s for s in query]
+
     def get_allsessions(self, start=0, length=25, search_term=None, col_name='starttime', order=1):
         #ToDo: This needs optimising a LOT
         if search_term and col_name:

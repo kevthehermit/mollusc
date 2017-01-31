@@ -498,7 +498,10 @@ def ajax_handler(request, command):
                     time_delta = 0
 
                 row['starttime'] = starttime.strftime('%Y-%m-%d %H:%M:%S.%f')
-                row['endtime'] = endtime.strftime('%Y-%m-%d %H:%M:%S.%f')
+                try:
+                    row['endtime'] = endtime.strftime('%Y-%m-%d %H:%M:%S.%f')
+                except:
+                    row['endtime'] = ''
                 row['duration'] = str(time_delta)
                 rows.append(row)
 

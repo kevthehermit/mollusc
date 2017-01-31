@@ -69,12 +69,6 @@ class Database():
         return data
 
 
-
-
-    def count_sessions(self):
-        count = self.col_sessions.find().count()
-        return count
-
     def find_auth(self, search):
         cursor = self.col_auth.find(search)
         return [x for x in cursor]
@@ -91,6 +85,7 @@ class Database():
         cursor = self.col_ttylog.find_one(search)
         return cursor
 
+
     def get_sensors(self):
         sensors = self.col_sensors.find()
         data = []
@@ -104,7 +99,15 @@ class Database():
         users = self.col_auth.find({}, {'username': 1, 'password': 1})
         return [x for x in users]
 
-    def get_passwords(self):
+    ##
+    # Counts
+    ##
+
+    def count_sessions(self):
+        count = self.col_sessions.find().count()
+        return count
+
+    def count_passwords(self):
         pipeline = [
             {"$unwind": "$password"},
             {"$group": {"_id": "$password", "count": {"$sum": 1}}},
@@ -113,7 +116,7 @@ class Database():
         this = list(self.col_auth.aggregate(pipeline))
         return this
 
-    def get_allusernames(self):
+    def count_usernames(self):
         pipeline = [
             {"$unwind": "$username"},
             {"$group": {"_id": "$username", "count": {"$sum": 1}}},
@@ -122,7 +125,7 @@ class Database():
         this = list(self.col_auth.aggregate(pipeline))
         return this
 
-    def get_allcommands(self):
+    def count_commands(self):
         pipeline = [
             {"$unwind": "$input"},
             {"$group": {"_id": "$input", "count": {"$sum": 1}}},
@@ -131,7 +134,7 @@ class Database():
         this = list(self.col_input.aggregate(pipeline))
         return this
 
-    def get_alldownloads(self):
+    def count_downloads(self):
         pipeline = [
             {"$unwind": "$url"},
             {"$group": {"_id": "$url", "count": {"$sum": 1}}},
@@ -140,10 +143,27 @@ class Database():
         this = list(self.col_downloads.aggregate(pipeline))
         return this
 
-    def all_passwords(self):
+
+    ##
+    # Feeds
+    ##
+
+    def get_feedusernames(self):
+        query = self.col_auth.find({}, {'username': 1})
+        return [x for x in query]
+
+    def get_feedcommands(self):
+        query = self.col_input.find({}, {'input': 1})
+        return [x for x in query]
+
+    def get_feedpasswords(self):
         passwords = self.col_auth.find({}, {'password': 1})
         return [x for x in passwords]
 
-    def get_iplist(self):
+    def get_feeddownloads(self):
+        query = self.col_downloads.find({}, {'url': 1})
+        return [x for x in query]
+
+    def get_feedip(self):
         iplist = self.col_sessions.find({}, {'src_ip': 1})
         return [x for x in iplist]

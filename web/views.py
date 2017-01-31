@@ -236,17 +236,28 @@ def feeds(request, datatype, format):
     data_list = []
 
     if datatype == 'passwords':
-        count = db.get_passwords()
+        count = db.count_passwords()
         for row in count:
             data_list.append('{0},{1}'.format(row['_id'], row['count']))
         download_name = 'passwords.csv'
 
     elif datatype == 'usernames':
-        count = db.get_usernames()
+        count = db.count_usernames()
         for row in count:
             data_list.append('{0},{1}'.format(row['_id'], row['count']))
         download_name = 'usernames.csv'
 
+    elif datatype == 'commands':
+        count = db.count_commands()
+        for row in count:
+            data_list.append('{0},{1}'.format(row['_id'], row['count']))
+        download_name = 'commands.csv'
+
+    elif datatype == 'downloads':
+        count = db.count_downloads()
+        for row in count:
+            data_list.append('{0},{1}'.format(row['_id'], row['count']))
+        download_name = 'downloads.csv'
 
     elif datatype == 'ip':
         ip_list = db.get_iplist()
@@ -284,7 +295,7 @@ def passwords(request):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return HttpResponse('Auth Required.')
-    pass_count = db.get_passwords()
+    pass_count = db.count_passwords()
 
     seq = [x['_id'] for x in pass_count]
     longest = max(seq, key=len)
@@ -301,7 +312,7 @@ def usernames(request):
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return HttpResponse('Auth Required.')
 
-    user_count = db.get_allusernames()
+    user_count = db.count_usernames()
     seq = [x['_id'] for x in user_count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
@@ -317,7 +328,7 @@ def commands_page(request):
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return HttpResponse('Auth Required.')
 
-    count = db.get_allcommands()
+    count = db.count_commands()
     seq = [x['_id'] for x in count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
@@ -333,7 +344,7 @@ def downloads_page(request):
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return HttpResponse('Auth Required.')
 
-    count = db.get_alldownloads()
+    count = db.count_downloads()
     seq = [x['_id'] for x in count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)

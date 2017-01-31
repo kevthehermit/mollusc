@@ -264,7 +264,7 @@ def feeds(request, datatype, format):
         download_name = 'downloads.csv'
 
     elif datatype == 'ip':
-        ip_list = db.get_iplist()
+        ip_list = db.get_feedip()
         data_list = []
         for ip in ip_list:
             data_list.append(ip['src_ip'])

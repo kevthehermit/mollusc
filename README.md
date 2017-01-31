@@ -55,8 +55,15 @@ run the following commands from the mollusc directory and follow the prompts
 
 
 
-In order to use the geo mapping element you need to generate an API key 
+In order to use the geo mapping element you need to generate an API key for google maps 
 https://developers.google.com/maps/documentation/javascript/get-api-key
+
+and install the maxmind geoip database
+
+- ```wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz```
+- ```gzip -d GeoLite2-City.mmdb.gz```
+- ```mv GeoLite2-City.mmdb /usr/share/GeoIP/```
+
 
 Other optional elements can be configured with their own API keys to enable functions. 
 

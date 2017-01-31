@@ -174,6 +174,10 @@ def get_ttylog(request, session_id):
     return HttpResponse(json_data)
 
 def ipaddress_page(request, ipadd):
+    if 'auth' in config:
+        if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
+            return HttpResponse('Auth Required.')
+
     errors = []
     ip_details = {}
     ip_details['IP'] = ipadd

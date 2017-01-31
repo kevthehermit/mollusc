@@ -477,97 +477,30 @@ def ajax_handler(request, command):
             else:
                 order = -1
 
-            # Get matching Rows
-            #output = db.get_allsessions(start=start, length=length, search_term=search_term, col_name=col_name, order=order)
-
             output = db.get_pagequery('sessions', start, length, search_term, col_name, order)
-
             if searching:
                 filtered_sessions = len(output)
 
-            # Format Data
-            rows = []
-            for row in output:
-                success = 'Disabled'
-                #auth_rows = db.find_auth({'session': row['session']})
-                #for auth in auth_rows:
-                #    if auth['message'].endswith('succeeded'):
-                #        success = True
-                row['success'] = success
-
-                # Time Stuffs
-                starttime = convert_date(row['starttime'])
-
-                if row['endtime']:
-                    endtime = convert_date(row['endtime'])
-                else:
-                    endtime = starttime
-
-                time_delta = endtime - starttime
-
-
-                rows.append([
-                    row['session'],
-                    row['src_ip'],
-                    row['dst_port'],
-                    starttime.strftime('%Y-%m-%d %H:%M:%S.%f'),
-                    endtime.strftime('%Y-%m-%d %H:%M:%S.%f'),
-                    str(time_delta),
-                    success,
-                    row['sensor']
-                ])
-
+            # Format Data for Tables
             datatables = {
                 "draw": int(request.POST['draw']),
                 "recordsTotal": total_sessions,
                 "recordsFiltered": filtered_sessions,
-                "data": rows
+                "data": output
             }
 
             return_data = datatables
 
         # Else return standard 25 rows
         else:
-            output = db.get_allsessions(start=0, length=25)
-            rows = []
+            output = db.get_pagequery('sessions', 0, 25, None, 'starttime', 1)
 
-            # Check if a session had a valid auth
-            # This is very slow, need to find a quicker way.
-
-            for row in output:
-                success = 'Disabled'
-
-                #auth_rows = db.find_auth({'session': row['session']})
-                #for auth in auth_rows:
-                #    if auth['message'].endswith('succeeded'):
-                #        success = True
-                row['success'] = success
-
-                # Time formatting
-                starttime = convert_date(row['starttime'])
-                endtime = convert_date(row['endtime'])
-                if starttime and endtime:
-                    time_delta = endtime - starttime
-                else:
-                    time_delta = 0
-
-                row['starttime'] = starttime.strftime('%Y-%m-%d %H:%M:%S.%f')
-                try:
-                    row['endtime'] = endtime.strftime('%Y-%m-%d %H:%M:%S.%f')
-                except:
-                    row['endtime'] = ''
-                row['duration'] = str(time_delta)
-                rows.append(row)
-
-            rendered_data = render(request, 'session_list.html', {'session_list': rows,
-                                                                   'resultcount': total_sessions})
+            rendered_data = render(request, 'session_list.html', {'session_list': output,
+                                                                  'resultcount': total_sessions})
             if rendered_data.status_code == 200:
                 return_data = rendered_data.content
             else:
                 return_data = str(rendered_data.status_code)
-
         final_javascript = ''
-
         json_response = {'data': return_data, 'javascript': final_javascript}
-
         return JsonResponse(json_response, safe=False)

@@ -3,6 +3,7 @@ import pymongo
 from bson.objectid import ObjectId
 from bson.son import SON
 from common import parse_config
+from common import convert_date
 
 config = parse_config()
 
@@ -55,9 +56,31 @@ class Database():
         else:
             query.sort(col_name, pymongo.DESCENDING)
 
+        rows = []
+
+        if collection == 'sessions':
+            for row in query:
+                # Time Stuffs
+                starttime = convert_date(row['starttime'])
+                if row['endtime']:
+                    endtime = convert_date(row['endtime'])
+                else:
+                    endtime = starttime
+                time_delta = endtime - starttime
+                rows.append([
+                    row['session'],
+                    row['src_ip'],
+                    row['dst_port'],
+                    starttime.strftime('%Y-%m-%d %H:%M:%S.%f'),
+                    endtime.strftime('%Y-%m-%d %H:%M:%S.%f'),
+                    str(time_delta),
+                    row['sensor']
+                ])
+
+
         # return the query
 
-        return [s for s in query]
+        return rows
 
     def get_allsessions(self, start=0, length=25, search_term=None, col_name='starttime', order=1):
         #ToDo: This needs optimising a LOT

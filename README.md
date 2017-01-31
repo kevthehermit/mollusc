@@ -34,10 +34,11 @@ Auth steps here
 
 ### Mollusc Installation
 
-sudo apt-get install git libjpeg-dev python-dev python-pip python-numpy python-matplotlib
-git clone https://github.com/kevthehermit/mollusc
-cd mollusc
-cp mollusc.conf.sample mollusc.conf
+- sudo apt-get install git libjpeg-dev python-dev python-pip python-numpy python-matplotlib
+- git clone https://github.com/kevthehermit/mollusc
+- cd mollusc
+- sudo pip install -r requirements.txt
+- cp mollusc.conf.sample mollusc.conf
 
 ### Mollusc Configuration
 The mollusc conf file needs to be populated with all the required information. 
@@ -49,8 +50,8 @@ Mollusc has web authentication built in. To enable the auth modules follow these
 set the enabled flag to true in the conf file
 
 run the following commands from the mollusc directory and follow the prompts
-```python manage.py migrate```
-```python manage.py create superuser```
+- ```python manage.py migrate```
+- ```python manage.py create superuser```
 
 
 
@@ -73,7 +74,16 @@ In the cowrie.cfg file locate the mongo section and update as required
 connection_string = mongodb://username:password@host:port/cowrie
 database = cowrie
 ```
-
+If you are not using auth and are local you can use
+```
+# MongoDB logging module
+#
+# MongoDB logging requires an extra Python module: pip install pymongo
+#
+[output_mongodb]
+connection_string = mongodb://localhost/cowrie
+database = cowrie
+```
 Now start cowrie as normal. 
 
 

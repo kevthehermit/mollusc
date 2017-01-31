@@ -492,7 +492,10 @@ def ajax_handler(request, command):
                 # Time formatting
                 starttime = convert_date(row['starttime'])
                 endtime = convert_date(row['endtime'])
-                time_delta = endtime - starttime
+                if starttime and endtime:
+                    time_delta = endtime - starttime
+                else:
+                    time_delta = 0
 
                 row['starttime'] = starttime.strftime('%Y-%m-%d %H:%M:%S.%f')
                 row['endtime'] = endtime.strftime('%Y-%m-%d %H:%M:%S.%f')

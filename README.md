@@ -51,7 +51,7 @@ set the enabled flag to true in the conf file
 
 run the following commands from the mollusc directory and follow the prompts
 - ```python manage.py migrate```
-- ```python manage.py create superuser```
+- ```python manage.py createsuperuser```
 
 
 
@@ -91,7 +91,7 @@ Now start cowrie as normal.
 
 If you have JSON logs that are not already in a mongo database you can use the json_migrate script to enter these sessions in to the DB
 
-```python json_migrate.py -l /path/ro.cowrie/log -t /path/to/cowrie/ -d cowrie -m 127.0.0.1/cowrie```
+```python json_migrate.py -l /path/to/cowrie/log -t /path/to/cowrie/ -d cowrie -m 127.0.0.1/cowrie```
 
 ### Running
 To start the application run this command from the mollusc directory

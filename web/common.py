@@ -11,7 +11,7 @@ def convert_date(date_string):
     try:
         return dateutil.parser.parse(date_string)
     except:
-        return date_string
+        return None
 
 def parse_config():
     config_dict = {}

@@ -89,7 +89,7 @@ WSGI_APPLICATION = 'mollusc.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'moladmin',
+        'NAME': '{0}/moladmin'.format(BASE_DIR)
     }
 }
 

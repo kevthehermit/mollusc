@@ -39,7 +39,7 @@ git clone https://github.com/kevthehermit/mollusc
 cd mollusc
 cp mollusc.conf.sample mollusc.conf
 
-### Configuration
+### Mollusc Configuration
 The mollusc conf file needs to be populated with all the required information. 
 
 It is important that the mongouri matches the mongo installation and the cowrie configuration as described later. 
@@ -58,6 +58,30 @@ In order to use the geo mapping element you need to generate an API key
 https://developers.google.com/maps/documentation/javascript/get-api-key
 
 Other optional elements can be configured with their own API keys to enable functions. 
+
+### Cowrie Configuration
+Your cowrie installations need to be configured to point to mongo database that mollusc is reading. 
+
+In the cowrie.cfg file locate the mongo section and update as required
+
+```
+# MongoDB logging module
+#
+# MongoDB logging requires an extra Python module: pip install pymongo
+#
+[output_mongodb]
+connection_string = mongodb://username:password@host:port/cowrie
+database = cowrie
+```
+
+Now start cowrie as normal. 
+
+
+### Migrate Cowrie Logs
+
+If you have JSON logs that are not already in a mongo database you can use the json_migrate script to enter these sessions in to the DB
+
+```python json_migrate.py -l /path/ro.cowrie/log -t /path/to/cowrie/ -d cowrie -m 127.0.0.1/cowrie```
 
 ### Running
 To start the application run this command from the mollusc directory

@@ -38,6 +38,13 @@ class Database():
             self.col_ttylog = moldb['ttylog']
             self.col_keyfingerprints = moldb['keyfingerprints']
             self.col_event = moldb['event']
+
+
+            # Index
+
+            self.col_sessions.create_index([('$**', 'text')])
+
+
         except Exception as e:
             print 'Error', e
 

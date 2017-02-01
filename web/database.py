@@ -28,7 +28,7 @@ class Database():
             # Connect to Databases.
             moldb = connection[config['database']['dbname']]
 
-            # Get Collections
+            # Cowrie Collections
             self.col_sensors = moldb['sensors']
             self.col_sessions = moldb['sessions']
             self.col_auth = moldb['auth']
@@ -38,6 +38,10 @@ class Database():
             self.col_ttylog = moldb['ttylog']
             self.col_keyfingerprints = moldb['keyfingerprints']
             self.col_event = moldb['event']
+
+            # Mollusc Collections
+
+            self.col_geoip = moldb['geoip']
 
 
             # Index
@@ -161,6 +165,18 @@ class Database():
         users = self.col_auth.find({}, {'username': 1, 'password': 1})
         return [x for x in users]
 
+    def get_geoip(self):
+        query = self.col_geoip.find()
+        return [x for x in query]
+
+
+    def add_geoip(self, doc):
+        try:
+            object_id = self.col_geoip.insert_one(doc).inserted_id
+            return object_id
+        except Exception as e:
+            print 'mongo error - {0}'.format(e)
+
     ##
     # Counts
     ##
@@ -175,8 +191,8 @@ class Database():
             {"$group": {"_id": "$password", "count": {"$sum": 1}}},
             {"$sort": SON([("count", -1), ("_id", -1)])}
             ]
-        this = list(self.col_auth.aggregate(pipeline))
-        return this
+        query = list(self.col_auth.aggregate(pipeline))
+        return query
 
     def count_usernames(self):
         pipeline = [
@@ -184,8 +200,8 @@ class Database():
             {"$group": {"_id": "$username", "count": {"$sum": 1}}},
             {"$sort": SON([("count", -1), ("_id", -1)])}
             ]
-        this = list(self.col_auth.aggregate(pipeline))
-        return this
+        query = list(self.col_auth.aggregate(pipeline))
+        return query
 
     def count_commands(self):
         pipeline = [
@@ -193,8 +209,8 @@ class Database():
             {"$group": {"_id": "$input", "count": {"$sum": 1}}},
             {"$sort": SON([("count", -1), ("_id", -1)])}
             ]
-        this = list(self.col_input.aggregate(pipeline))
-        return this
+        query = list(self.col_input.aggregate(pipeline))
+        return query
 
     def count_downloads(self):
         pipeline = [
@@ -202,9 +218,17 @@ class Database():
             {"$group": {"_id": "$url", "count": {"$sum": 1}}},
             {"$sort": SON([("count", -1), ("_id", -1)])}
             ]
-        this = list(self.col_downloads.aggregate(pipeline))
-        return this
+        query = list(self.col_downloads.aggregate(pipeline))
+        return query
 
+    def count_sourceip(self):
+        pipeline = [
+            {"$unwind": "$src_ip"},
+            {"$group": {"_id": "$src_ip", "count": {"$sum": 1}}},
+            {"$sort": SON([("count", -1), ("_id", -1)])}
+            ]
+        query = list(self.col_sessions.aggregate(pipeline))
+        return query
 
     ##
     # Feeds

@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load customtags %}
+
+
+{% block title %}Commands{% endblock %}
+
+{% block content %}
+
+<div id="alertTarget"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">IP Cluster Mapping</h3>
+            </div>
+            <div id="map"></div>
+
+        </div>
+
+    </div>
+
+<div class="row">
+
+        <div class="panel panel-default">
+<table id="sourceiptable" class="table table-striped table-bordered table-hover">
+    <thead>
+    <tr>
+        <th>IP</th>
+        <th>Country Name</th>
+        <th>TimeZone</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in geo_list %}
+    <tr>
+        <td><a href="/ipaddress/{{row.src_ip}}/">{{row.src_ip}}</a></td>
+        <td>{{row.country_name}}</td>
+        <td>{{row.timezone}}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+        </div>
+
+</div>
+</div>
+
+
+
+{% endblock %}
+
+{% block javascript %}
+
+
+    <script>
+
+      function initMap() {
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 3,
+styles: [
+            {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
+            {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
+            {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
+            {
+              featureType: 'administrative.locality',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#d59563'}]
+            },
+            {
+              featureType: 'poi',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#d59563'}]
+            },
+            {
+              featureType: 'poi.park',
+              elementType: 'geometry',
+              stylers: [{color: '#263c3f'}]
+            },
+            {
+              featureType: 'poi.park',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#6b9a76'}]
+            },
+            {
+              featureType: 'road',
+              elementType: 'geometry',
+              stylers: [{color: '#38414e'}]
+            },
+            {
+              featureType: 'road',
+              elementType: 'geometry.stroke',
+              stylers: [{color: '#212a37'}]
+            },
+            {
+              featureType: 'road',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#9ca5b3'}]
+            },
+            {
+              featureType: 'road.highway',
+              elementType: 'geometry',
+              stylers: [{color: '#746855'}]
+            },
+            {
+              featureType: 'road.highway',
+              elementType: 'geometry.stroke',
+              stylers: [{color: '#1f2835'}]
+            },
+            {
+              featureType: 'road.highway',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#f3d19c'}]
+            },
+            {
+              featureType: 'transit',
+              elementType: 'geometry',
+              stylers: [{color: '#2f3948'}]
+            },
+            {
+              featureType: 'transit.station',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#d59563'}]
+            },
+            {
+              featureType: 'water',
+              elementType: 'geometry',
+              stylers: [{color: '#17263c'}]
+            },
+            {
+              featureType: 'water',
+              elementType: 'labels.text.fill',
+              stylers: [{color: '#515c6d'}]
+            },
+            {
+              featureType: 'water',
+              elementType: 'labels.text.stroke',
+              stylers: [{color: '#17263c'}]
+            }
+          ],
+
+          center: {lat: 36, lng: -14}
+        });
+
+
+        // Add some markers to the map.
+        // Note: The code uses the JavaScript Array.prototype.map() method to
+        // create an array of markers based on a given "locations" array.
+        // The map() method here has nothing to do with the Google Maps API.
+        var markers = locations.map(function(location, i) {
+          return new google.maps.Marker({
+            position: location,
+            label: ''
+          });
+        });
+
+        // Add a marker clusterer to manage the markers.
+        var markerCluster = new MarkerClusterer(map, markers,
+            {imagePath: '{% static 'img/m' %}'});
+      }
+      var locations = [
+          {% for geoip in geo_list %}
+          {% if geoip.lat != 'Unknown'%}
+          {lat: {{ geoip.lat }}, lng: {{geoip.long}}},
+          {% endif %}
+          {% endfor %}
+      ]
+    </script>
+
+    <script src="{% static 'js/markerclusterer.js' %}"></script>
+
+
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap">
+    </script>
+
+<script>
+$(document).ready(function(){
+    $('#sourceiptable').DataTable();
+});
+
+</script>
+
+{% endblock %}

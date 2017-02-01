@@ -152,3 +152,7 @@ http://cssload.net/
 }
 
 /* End Loading */
+
+#map {
+height: 500px;
+}

@@ -385,6 +385,62 @@ def downloads_page(request):
                                               'shortest': shortest
                                               })
 
+def sourceip_page(request):
+    if 'auth' in config:
+        if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
+            return HttpResponse('Auth Required.')
+
+    errors = []
+
+    # get list of IP's
+    ip_list = db.count_sourceip()
+
+    # GeoIP table
+    geo_list = db.get_geoip()
+
+    # Geo Database
+    maxmind_city_db = '/usr/share/GeoIP/GeoLite2-City.mmdb'
+    if not os.path.exists(maxmind_city_db):
+        raise IOError("Unable to locate GeoLite2-City.mmdb")
+    reader = geoip2.database.Reader(maxmind_city_db)
+
+
+    for ip_dict in ip_list:
+        ipadd = ip_dict['_id']
+        if not any(d['src_ip'] == ipadd for d in geo_list):
+            # Create the new entry
+            geo_entry = {'src_ip': ipadd}
+            try:
+                record = reader.city(ipadd)
+                if not record.country.name:
+                    geo_entry['country_name'] = 'Unknown'
+                else:
+                    geo_entry['country_name'] = record.country.name
+                    geo_entry['timezone'] = record.location.time_zone
+                    geo_entry['long'] = record.location.longitude
+                    geo_entry['lat'] = record.location.latitude
+
+            except Exception as e:
+                geo_entry['country_name'] = "Unknown"
+                geo_entry['timezone'] = "Unknown"
+                geo_entry['lat'] = "Unknown"
+                geo_entry['long'] = "Unknown"
+
+            # add to database
+            db.add_geoip(geo_entry)
+            # add to geo_list to save a final query
+            geo_list.append(geo_entry)
+
+    # we also need a maps api key
+
+    api_key = config['maps']['api_key']
+    if api_key == 'enter key here':
+        errors.append('Missing Maps API Key')
+
+    # return results
+    return render(request, 'sourceip.html', {'geo_list': geo_list, 'api_key': api_key})
+
+
 @csrf_exempt
 def ajax_handler(request, command):
     """

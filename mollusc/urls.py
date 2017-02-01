@@ -42,4 +42,6 @@ urlpatterns = [
     url(r'^downloads/', views.downloads_page),
     # IP Lookup
     url(r'^ipaddress/(?P<ipadd>.+)/$', views.ipaddress_page),
+    # All IPs
+    url(r'^sourceips/', views.sourceip_page),
 ]

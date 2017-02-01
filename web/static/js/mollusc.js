@@ -30,10 +30,10 @@ Server side pagination of plugin rows.
 
  */
 
-function datatablesAjax(session_id) {
+function datatablesAjax(dataset) {
 
     // Fill the First Page
-    $.post("/ajaxhandler/sessions/")
+    $.post('/ajaxhandler/'+dataset+'/')
 
         // Success
         .done(function(data) {
@@ -41,10 +41,10 @@ function datatablesAjax(session_id) {
             var html_data = data['data'];
 
             // Fill first 25 rows
-            $('#sessiontabletarget').html(html_data);
+            //$('#sessiontabletarget').html(html_data);
 
             // then handover to ajax
-            $('#sessiontable').DataTable({
+            $('#'+dataset+'table').DataTable({
                 sDom: '<"top"flpr>rt<"bottom"ip><"clear">',
                 oLanguage:{
                   sProcessing: '<div id="OuterBarG"><div id="FrontBarG" class="AnimationG"><div class="BarLineG"></div><div class="BarLineG"></div><div class="BarLineG"></div><div class="BarLineG"></div><div class="BarLineG"></div><div class="BarLineG"></div></div></div>'
@@ -52,10 +52,10 @@ function datatablesAjax(session_id) {
                 processing: true,
                 serverSide: true,
                 ajax :{
-                    url: '/ajaxhandler/sessions/',
+                    url: '/ajaxhandler/'+dataset+'/',
                     type: 'POST',
                     data: function (d) {
-                        d.session_id = session_id;
+                        d.session_id = dataset;
                         d.pagination = true;
                     },
                     dataSrc: function(json){

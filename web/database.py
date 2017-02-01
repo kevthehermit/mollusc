@@ -55,16 +55,23 @@ class Database():
     def get_pagequery(self, collection, start, length, search_term, col_name, order):
 
         # If we want to search we need to do that first.
+        if collection == 'password':
+            query = self.count_passwords()
 
-        # First run the query with the limits.
-        query = self.col_sessions.find()[start:start+length]
+        elif collection == 'username':
+            query = self.count_usernames()
 
-        # Order the list
+        elif collection == 'sessions':
+            query = self.col_sessions.find()[start:start+length].sort(col_name, order)
 
-        if order == 1:
-            query.sort(col_name, pymongo.ASCENDING)
+        elif collection == 'command':
+            query = self.count_commands()
+
+        elif collection == 'download':
+            query = self.count_downloads()
+
         else:
-            query.sort(col_name, pymongo.DESCENDING)
+            return []
 
         rows = []
 
@@ -87,6 +94,9 @@ class Database():
                     row['sensor']
                 ])
 
+        if collection in ['password', 'username', 'command', 'download']:
+            for row in query[start:start+length]:
+                rows.append([row['_id'], row['count']])
 
         # return the query
 

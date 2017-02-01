@@ -50,8 +50,9 @@ db.createUser(
 
 create a cowrie user that can only access its own database
 
+```use cowrie```
+
 ```
-use test
 db.createUser(
   {
     user: "cowrie",
@@ -61,7 +62,25 @@ db.createUser(
 )
 ```
 
+exit mongo 
+
+```exit```
+
 configure the service to set authentication
+
+for ubuntu 14.04 using 
+
+sudo nano /etc/mongo.conf
+
+change the security options to match
+
+```
+security:
+  authorization: enabled
+```
+
+
+For Ubuntu 16.04 using systemd
 
 ```sudo nano /etc/systemd/system/mongodb.service```
 
@@ -147,7 +166,7 @@ Now start cowrie as normal.
 
 If you have JSON logs that are not already in a mongo database you can use the json_migrate script to enter these sessions in to the DB
 
-```python json_migrate.py -l /path/to/cowrie/log -t /path/to/cowrie/ -d cowrie -m 127.0.0.1/cowrie```
+```python json_migrate.py -l /path/to/cowrie/log -t /path/to/cowrie/ -d cowrie -m 127.0.0.1```
 
 ### Running
 To start the application run this command from the mollusc directory

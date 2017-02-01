@@ -3,7 +3,7 @@
 {% load customtags %}
 
 
-{% block title %}UserNames{% endblock %}
+{% block title %}Usernames{% endblock %}
 
 {% block content %}
 
@@ -46,43 +46,59 @@
                 </table>
             </div>
         </div>
-        <div class="row">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Looks Pretty</h3>
-                </div>
-                    <img alt="Embedded Image" src="data:image/png;base64,{{ b64_image }}" />
-            </div>
-        </div>
     </div>
     <div class="col-lg-6">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">Top 20 UserNames from {{ count_total }} unique entries</h3>
+                <h3 class="panel-title">Top 100 Usernames</h3>
             </div>
-                <table id="usernametable" class="table table-striped table-bordered table-hover">
-                    <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Count</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for row in user_count %}
-                    <tr>
-                        <td>{{row|get:"_id"}}</td>
-                        <td>{{row.count}}</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+<img alt="Embedded Image" src="data:image/png;base64,{{ b64_image }}" />
         </div>
     </div>
 
  </div>
+
+<div class="row">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Search across {{ count_total }} unique entries</h3>
+            </div>
+<table id="usernametable" class="table table-striped table-bordered table-hover">
+    <thead>
+    <tr>
+        <th>Password</th>
+        <th>Count</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in count %}
+    <tr>
+        <td>{{row | get:"_id"}}</td>
+        <td>{{row.count}}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+        </div>
+
+</div>
+
+
+
 </div>
 
 {% endblock %}
 
 {% block javascript %}
+<script>
+    var vresultCount = '{{ count_total }}';
+</script>
+<script>
+    $( document ).ready(function() {
+        datatablesAjax('username');
+    });
+</script>
 {% endblock %}

@@ -83,6 +83,10 @@ def main_page(request, error_line=None):
                                                   })
     sensor_list = db.get_sensors()
     endtime = datetime.datetime.now()
+
+    session_list = db.get_pagequery('sessions', 0, 25, None, 'starttime', 1)
+    resultcount = db.count_sessions()
+
     starttime = endtime - datetime.timedelta(days=7)
 
     timelines = db.get_timeline(starttime.isoformat(), endtime.isoformat())
@@ -103,24 +107,13 @@ def main_page(request, error_line=None):
         sensor_string += '], color: "{0}"}},\n'.format('blue')
         timeline_string += sensor_string
 
-    '''
-    { name: "http requests", data: [new Date('2017/01/30 13:24:54'), new Date('2017/01/30 13:25:03'), new Date('2017/01/30 13:25:05')] , color: "blue"},
-
-
-  { name: "http requests", data: [new Date('2017/01/30 13:24:54'), new Date('2017/01/30 13:25:03'), new Date('2017/01/30 13:25:05')] , color: "blue"},
-  { name: "SQL queries", data: [new Date('2017/01/30 13:24:57'), new Date('2017/01/30 13:25:04'), new Date('2017/01/30 13:25:04')]  , color: "green"},
-  { name: "cache invalidations", data: [new Date('2017/01/30 13:25:12')]  , color: "red"}
-
-
-    '''
-
-
-
     # Main Table is populated with ajax
     return render(request, 'index.html', {'reqauth': False,
                                           'sensor_list': sensor_list,
                                           'errors': errors,
-                                          'timeline': timeline_string
+                                          'timeline': timeline_string,
+                                          'session_list': session_list,
+                                          'resultcount': resultcount
                                           })
 
 def session_page(request, session_id):
@@ -295,18 +288,16 @@ def feeds(request, datatype, format):
         return response
 
 
-
 def passwords(request):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return HttpResponse('Auth Required.')
-    pass_count = db.count_passwords()
-
+    count = db.count_passwords()
 
     word_list = []
-    for count in pass_count[:100]:
-        size = count['count']
-        word_list.append((count['_id'], size))
+    for c in count[:100]:
+        size = c['count']
+        word_list.append((c['_id'], size))
         #word_list.append({'text': count['_id'], 'size': size})
 
     word_cloud = WordCloud(background_color="white", width=800, height=300).generate_from_frequencies(word_list)
@@ -318,13 +309,12 @@ def passwords(request):
 
     b64_image = b64encode(imgBytes.getvalue())
 
-
-    seq = [x['_id'] for x in pass_count]
+    seq = [x['_id'] for x in count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
 
-    return render(request, 'passwords.html', {'pass_count': pass_count[:20],
-                                              'count_total': len(pass_count),
+    return render(request, 'passwords.html', {'count': count[:25],
+                                              'count_total': len(count),
                                               'longest': longest,
                                               'shortest': shortest,
                                               'b64_image': b64_image
@@ -335,12 +325,12 @@ def usernames(request):
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return HttpResponse('Auth Required.')
 
-    user_count = db.count_usernames()
+    count = db.count_usernames()
 
     word_list = []
-    for count in user_count[:100]:
-        size = count['count']
-        word_list.append((count['_id'], size))
+    for c in count[:100]:
+        size = c['count']
+        word_list.append((c['_id'], size))
         #word_list.append({'text': count['_id'], 'size': size})
 
     word_cloud = WordCloud(background_color="white", width=800, height=300).generate_from_frequencies(word_list)
@@ -352,13 +342,12 @@ def usernames(request):
 
     b64_image = b64encode(imgBytes.getvalue())
 
-
-    seq = [x['_id'] for x in user_count]
+    seq = [x['_id'] for x in count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
 
-    return render(request, 'usernames.html', {'user_count': user_count[:20],
-                                              'count_total': len(user_count),
+    return render(request, 'usernames.html', {'count': count[:25],
+                                              'count_total': len(count),
                                               'longest': longest,
                                               'shortest': shortest,
                                               'b64_image': b64_image
@@ -374,10 +363,10 @@ def commands_page(request):
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
 
-    return render(request, 'commands.html', {'count': count[:20],
+    return render(request, 'commands.html', {'count': count[:25],
                                               'count_total': len(count),
                                               'longest': longest,
-                                              'shortest': shortest
+                                              'shortest': shortest,
                                               })
 
 def downloads_page(request):
@@ -390,34 +379,11 @@ def downloads_page(request):
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
 
-    return render(request, 'downloads.html', {'count': count[:20],
+    return render(request, 'downloads.html', {'count': count[:25],
                                               'count_total': len(count),
                                               'longest': longest,
                                               'shortest': shortest
                                               })
-
-def wordclouds(request):
-    if 'auth' in config:
-        if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
-            return HttpResponse('Auth Required.')
-    db_query = db.get_passwords()
-    word_list = []
-    for count in db_query[:100]:
-        size = count['count']
-        word_list.append((count['_id'], size))
-        #word_list.append({'text': count['_id'], 'size': size})
-
-    word_cloud = WordCloud(background_color="white", width=800, height=300).generate_from_frequencies(word_list)
-
-    image = word_cloud.to_image()
-    import io
-
-    imgBytes = io.BytesIO()
-    image.save(imgBytes, format='PNG')
-
-    b64_image = b64encode(imgBytes.getvalue())
-
-    return render(request, 'passwords.html', {'word_list': json.dumps(word_list), 'b64_image': b64_image})
 
 @csrf_exempt
 def ajax_handler(request, command):
@@ -442,7 +408,8 @@ def ajax_handler(request, command):
             except shodan.APIError as e:
                 print e
 
-    if command == 'sessions':
+    if command in ['sessions', 'password', 'username', 'command', 'download']:
+        dataset = command
 
         total_sessions = db.count_sessions()
         filtered_sessions = db.count_sessions()
@@ -477,7 +444,8 @@ def ajax_handler(request, command):
             else:
                 order = -1
 
-            output = db.get_pagequery('sessions', start, length, search_term, col_name, order)
+            output = db.get_pagequery(dataset, start, length, search_term, col_name, order)
+
             if searching:
                 filtered_sessions = len(output)
 

@@ -30,7 +30,48 @@ Mollusc requires a mongo database in order to store analysis results. There are 
 ### Mongo Authentication
 If you are allowing remote connections to your mongo database it is advisable to enable authentication
 
-Auth steps here
+In order to configure mongo to use authenitcation you need to connect using the mongo shell. 
+
+- ```mongo```
+- ```use admin```
+
+create an admin user
+
+- 
+```
+db.createUser(
+  {
+    user: "username",
+    pwd: "securepassword",
+    roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+  }
+)
+```
+
+create a cowrie user that can only access its own database
+
+```
+use test
+db.createUser(
+  {
+    user: "cowrie",
+    pwd: "securepassword",
+    roles: [ { role: "readWrite", db: "cowrie" }]
+  }
+)
+```
+
+configure the service to set authentication
+
+```sudo nano /etc/systemd/system/mongodb.service```
+
+change the ExecStart line from
+
+```ExecStart=/usr/bin/mongod --quiet --config /etc/mongod.conf```
+
+to
+
+```ExecStart=/usr/bin/mongod --auth --quiet --config /etc/mongod.conf```
 
 ### Mollusc Installation
 

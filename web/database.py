@@ -44,6 +44,9 @@ class Database():
 
             self.col_sessions.create_index([('$**', 'text')])
 
+            # Sort indexes
+            self.col.sessions.create_index({'starttime':1})
+
 
         except Exception as e:
             print 'Error', e

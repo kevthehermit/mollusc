@@ -398,6 +398,13 @@ def sourceip_page(request):
     # GeoIP table
     geo_list = db.get_geoip()
 
+
+    # Lookup table
+    lookup = []
+    for row in geo_list:
+        lookup.append(row['src_ip'])
+
+
     # Geo Database
     maxmind_city_db = '/usr/share/GeoIP/GeoLite2-City.mmdb'
     if not os.path.exists(maxmind_city_db):
@@ -407,7 +414,9 @@ def sourceip_page(request):
 
     for ip_dict in ip_list:
         ipadd = ip_dict['_id']
-        if not any(d['src_ip'] == ipadd for d in geo_list):
+        print 1
+        #if not any(d['src_ip'] == ipadd for d in geo_list):
+        if not ipadd in lookup:
             # Create the new entry
             geo_entry = {'src_ip': ipadd}
             try:
@@ -430,6 +439,7 @@ def sourceip_page(request):
             db.add_geoip(geo_entry)
             # add to geo_list to save a final query
             geo_list.append(geo_entry)
+        print 2
 
     # we also need a maps api key
 

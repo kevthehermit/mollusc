@@ -101,29 +101,8 @@ class Database():
         if collection in ['password', 'username', 'command', 'download']:
             for row in query[start:start+length]:
                 rows.append([row['_id'], row['count']])
-
-        # return the query
-
         return rows
 
-    def get_allsessions(self, start=0, length=25, search_term=None, col_name='starttime', order=1):
-        #ToDo: This needs optimising a LOT
-        if search_term and col_name:
-            cursor = self.col_sessions.find({col_name: {"$regex": u"{}".format(search_term)}})
-        else:
-            cursor = self.col_sessions.find()
-
-        if order == 1:
-            cursor.sort(col_name, pymongo.ASCENDING)
-        else:
-            cursor.sort(col_name, pymongo.DESCENDING)
-        sessions = cursor.skip(start).limit(length)
-
-        return [s for s in sessions]
-
-    def get_session(self, search):
-        cursor = self.col_sessions.find_one(search)
-        return cursor
 
     def get_timeline(self, starttime, endtime):
         sensors = self.col_sensors.find()
@@ -134,24 +113,6 @@ class Database():
 
         return data
 
-
-    def find_auth(self, search):
-        cursor = self.col_auth.find(search)
-        return [x for x in cursor]
-
-    def get_input(self, search):
-        cursor = self.col_input.find(search)
-        return [x for x in cursor]
-
-    def get_downloads(self, search):
-        cursor = self.col_downloads.find(search)
-        return [x for x in cursor]
-
-    def get_ttylog(self, search):
-        cursor = self.col_ttylog.find_one(search)
-        return cursor
-
-
     def get_sensors(self):
         sensors = self.col_sensors.find()
         data = []
@@ -161,9 +122,29 @@ class Database():
             data.append({'sensor': sensor['sensor'], 'dst_ip': sensor['dst_ip'], 'last': last[0]['starttime'], 'first':first['starttime'] })
         return data
 
-    def get_users(self):
-        users = self.col_auth.find({}, {'username': 1, 'password': 1})
-        return [x for x in users]
+    ##
+    # Search
+    ##
+
+    def search_auth(self, search):
+        cursor = self.col_auth.find(search)
+        return [x for x in cursor]
+
+    def search_input(self, search):
+        cursor = self.col_input.find(search)
+        return [x for x in cursor]
+
+    def search_downloads(self, search):
+        cursor = self.col_downloads.find(search)
+        return [x for x in cursor]
+
+    def get_ttylog(self, search):
+        cursor = self.col_ttylog.find_one(search)
+        return cursor
+
+    def get_session(self, search):
+        cursor = self.col_sessions.find_one(search)
+        return cursor
 
     def get_geoip(self):
         query = self.col_geoip.find()

@@ -124,10 +124,10 @@ def session_page(request, session_id):
     # These are all the things i need for the session page.
 
     session_details = db.get_session({'session': session_id})
-    auth_list = db.find_auth({'session': session_id})
-    input_list = db.get_input({'session': session_id})
+    auth_list = db.search_auth({'session': session_id})
+    input_list = db.search_input({'session': session_id})
     tty_log = db.get_ttylog({'session': session_id})
-    download_list = db.get_downloads({'session': session_id})
+    download_list = db.search_downloads({'session': session_id})
 
     # Modify some values
 
@@ -414,7 +414,6 @@ def sourceip_page(request):
 
     for ip_dict in ip_list:
         ipadd = ip_dict['_id']
-        print 1
         #if not any(d['src_ip'] == ipadd for d in geo_list):
         if not ipadd in lookup:
             # Create the new entry
@@ -439,7 +438,6 @@ def sourceip_page(request):
             db.add_geoip(geo_entry)
             # add to geo_list to save a final query
             geo_list.append(geo_entry)
-        print 2
 
     # we also need a maps api key
 

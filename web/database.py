@@ -17,7 +17,11 @@ class Database():
             else:
                 mongo_uri = 'mongodb://localhost'
 
-            connection = pymongo.MongoClient(mongo_uri)
+            try:
+
+                connection = pymongo.MongoClient(mongo_uri)
+            except Exception as e:
+                print "Failed to connect to Mongo {0}".format(e)
 
             # Version Check
             server_version = connection.server_info()['version']
@@ -26,7 +30,10 @@ class Database():
                     'Incompatible MongoDB Version detected. Requires 3 or higher. Found {0}'.format(server_version))
 
             # Connect to Databases.
-            moldb = connection[config['database']['dbname']]
+            try:
+                moldb = connection[config['database']['dbname']]
+            except Exception as e:
+                print "Failed to connect to Database {0}".format(e)
 
             # Cowrie Collections
             self.col_sensors = moldb['sensors']

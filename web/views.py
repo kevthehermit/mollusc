@@ -10,7 +10,6 @@ import asciinema
 from django.conf import settings
 import StringIO
 import io
-import json
 from wordcloud import WordCloud
 import geoip2.database
 import os
@@ -119,7 +118,9 @@ def main_page(request, error_line=None):
 def session_page(request, session_id):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
-            return HttpResponse('Auth Required.')
+            return render(request, 'index.html', {'reqauth': True,
+                                                  'errors': ['Not Authenticated']
+                                                  })
 
     # These are all the things i need for the session page.
 
@@ -152,7 +153,9 @@ def session_page(request, session_id):
 def get_ttylog(request, session_id):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
-            return HttpResponse('Auth Required.')
+            return render(request, 'index.html', {'reqauth': True,
+                                                  'errors': ['Not Authenticated']
+                                                  })
 
     tty_log = db.get_ttylog({'session': session_id})
 
@@ -170,7 +173,9 @@ def get_ttylog(request, session_id):
 def ipaddress_page(request, ipadd):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
-            return HttpResponse('Auth Required.')
+            return render(request, 'index.html', {'reqauth': True,
+                                                  'errors': ['Not Authenticated']
+                                                  })
 
     errors = []
     ip_details = {}
@@ -212,7 +217,7 @@ def ipaddress_page(request, ipadd):
     if api_key == 'enter key here':
         errors.append('Missing Maps API Key')
 
-    return render(request, 'ipaddress.html', {'ip_details': ip_details, 'errors': errors})
+    return render(request, 'ipaddress.html', {'ip_details': ip_details, 'errors': errors, 'api_key':api_key})
 
 
 def feeds(request, datatype, format):
@@ -224,7 +229,9 @@ def feeds(request, datatype, format):
     """
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
-            return HttpResponse('Auth Required.')
+            return render(request, 'index.html', {'reqauth': True,
+                                                  'errors': ['Not Authenticated']
+                                                  })
 
     if format.lower() not in ['csv', 'json', 'list']:
         return main_page(request, error_line='Invalid Feed Format requested')
@@ -291,7 +298,9 @@ def feeds(request, datatype, format):
 def passwords(request):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
-            return HttpResponse('Auth Required.')
+            return render(request, 'index.html', {'reqauth': True,
+                                                  'errors': ['Not Authenticated']
+                                                  })
     count = db.count_passwords()
 
     word_list = []
@@ -323,7 +332,9 @@ def passwords(request):
 def usernames(request):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
-            return HttpResponse('Auth Required.')
+            return render(request, 'index.html', {'reqauth': True,
+                                                  'errors': ['Not Authenticated']
+                                                  })
 
     count = db.count_usernames()
 
@@ -356,7 +367,9 @@ def usernames(request):
 def commands_page(request):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
-            return HttpResponse('Auth Required.')
+            return render(request, 'index.html', {'reqauth': True,
+                                                  'errors': ['Not Authenticated']
+                                                  })
 
     count = db.count_commands()
     seq = [x['_id'] for x in count]
@@ -372,7 +385,9 @@ def commands_page(request):
 def downloads_page(request):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
-            return HttpResponse('Auth Required.')
+            return render(request, 'index.html', {'reqauth': True,
+                                                  'errors': ['Not Authenticated']
+                                                  })
 
     count = db.count_downloads()
     seq = [x['_id'] for x in count]
@@ -388,7 +403,9 @@ def downloads_page(request):
 def sourceip_page(request):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
-            return HttpResponse('Auth Required.')
+            return render(request, 'index.html', {'reqauth': True,
+                                                  'errors': ['Not Authenticated']
+                                                  })
 
     errors = []
 
@@ -459,7 +476,9 @@ def ajax_handler(request, command):
     """
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
-            return HttpResponse('Auth Required.')
+            return render(request, 'index.html', {'reqauth': True,
+                                                  'errors': ['Not Authenticated']
+                                                  })
 
     if command == 'shodan':
         ipadd = request.POST['ipadd']

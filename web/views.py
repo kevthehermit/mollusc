@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse, HttpResponseServerError, StreamingHttpResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseServerError
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from database import Database
-from common import parse_config, convert_date
+from common import parse_config
 import logging
 from base64 import b64encode
 import asciinema
@@ -23,6 +23,8 @@ db = Database()
 ##
 # Page Views
 ##
+
+
 # Login Page
 def login_page(request):
     try:
@@ -82,18 +84,10 @@ def main_page(request, error_line=None):
                                                   })
     sensor_list = db.get_sensors()
     endtime = datetime.datetime.now()
-
     session_list = db.get_pagequery('sessions', 0, 25, None, 'starttime', 1)
     resultcount = db.count_sessions()
-
     starttime = endtime - datetime.timedelta(days=7)
-
     timelines = db.get_timeline(starttime.isoformat(), endtime.isoformat())
-
-
-    #ToDo: There are too many dates here.
-    # To mkae it usable just grab the last weeks worth and display this.
-    # Then on the sensor page allow a variable time entry
 
     # Get all dates per sensor for the timeline.
     timeline_string = ''
@@ -114,6 +108,7 @@ def main_page(request, error_line=None):
                                           'session_list': session_list,
                                           'resultcount': resultcount
                                           })
+
 
 def session_page(request, session_id):
     if 'auth' in config:
@@ -150,6 +145,7 @@ def session_page(request, session_id):
                                             'tty_log': tty_log,
                                             'download_list': download_list})
 
+
 def get_ttylog(request, session_id):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
@@ -170,20 +166,17 @@ def get_ttylog(request, session_id):
 
     return HttpResponse(json_data)
 
+
 def ipaddress_page(request, ipadd):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
             return render(request, 'index.html', {'reqauth': True,
                                                   'errors': ['Not Authenticated']
                                                   })
-
     errors = []
-    ip_details = {}
-    ip_details['IP'] = ipadd
-
+    ip_details = {'IP': ipadd}
     # Get the database from
     # https://dev.maxmind.com/geoip/geoip2/geolite2/
-
 
     maxmind_city_db = '/usr/share/GeoIP/GeoLite2-City.mmdb'
     if not os.path.exists(maxmind_city_db):
@@ -210,21 +203,19 @@ def ipaddress_page(request, ipadd):
         ip_details['lat'] = "Unknown"
         ip_details['long'] = "Unknown"
 
-
     # we also need a maps api key
-
     api_key = config['maps']['api_key']
     if api_key == 'enter key here':
         errors.append('Missing Maps API Key')
+    return render(request, 'ipaddress.html', {'ip_details': ip_details, 'errors': errors, 'api_key': api_key})
 
-    return render(request, 'ipaddress.html', {'ip_details': ip_details, 'errors': errors, 'api_key':api_key})
 
-
-def feeds(request, datatype, format):
+def feeds(request, datatype, dataformat):
     """
     Returns a machine readble list of source IP's
     :param request:
-    :param format:
+    :param datatype:
+    :param dataformat:
     :return:
     """
     if 'auth' in config:
@@ -233,7 +224,7 @@ def feeds(request, datatype, format):
                                                   'errors': ['Not Authenticated']
                                                   })
 
-    if format.lower() not in ['csv', 'json', 'list']:
+    if dataformat.lower() not in ['csv', 'json', 'list']:
         return main_page(request, error_line='Invalid Feed Format requested')
 
     # Get data
@@ -241,25 +232,25 @@ def feeds(request, datatype, format):
     data_list = []
 
     if datatype == 'passwords':
-        count = db.count_passwords()
+        count = db.count_passwords(col_name="count", sort=-1)
         for row in count:
             data_list.append('{0},{1}'.format(row['_id'], row['count']))
         download_name = 'passwords.csv'
 
     elif datatype == 'usernames':
-        count = db.count_usernames()
+        count = db.count_usernames(col_name="count", sort=-1)
         for row in count:
             data_list.append('{0},{1}'.format(row['_id'], row['count']))
         download_name = 'usernames.csv'
 
     elif datatype == 'commands':
-        count = db.count_commands()
+        count = db.count_commands(col_name="count", sort=-1)
         for row in count:
             data_list.append('{0},{1}'.format(row['_id'], row['count']))
         download_name = 'commands.csv'
 
     elif datatype == 'downloads':
-        count = db.count_downloads()
+        count = db.count_downloads(col_name="count", sort=-1)
         for row in count:
             data_list.append('{0},{1}'.format(row['_id'], row['count']))
         download_name = 'downloads.csv'
@@ -274,8 +265,7 @@ def feeds(request, datatype, format):
     else:
         return HttpResponseServerError
 
-
-    if format == 'list':
+    if dataformat == 'list':
         # create a basic list
         file_data = '\n'.join(set(data_list))
         # Create the reponse object
@@ -283,10 +273,10 @@ def feeds(request, datatype, format):
         response['Content-Disposition'] = 'attachment; filename="{0}"'.format(download_name)
         return response
 
-    elif format == 'json':
+    elif dataformat == 'json':
         pass
 
-    elif format == 'csv':
+    elif dataformat == 'csv':
         # create a csv string
         file_data = ','.join(set(data_list))
         # Create the reponse object
@@ -301,23 +291,17 @@ def passwords(request):
             return render(request, 'index.html', {'reqauth': True,
                                                   'errors': ['Not Authenticated']
                                                   })
-    count = db.count_passwords()
-
+    count = db.count_passwords(col_name="count", sort=-1)
     word_list = []
     for c in count[:100]:
         size = c['count']
         word_list.append((c['_id'], size))
-        #word_list.append({'text': count['_id'], 'size': size})
 
     word_cloud = WordCloud(background_color="white", width=800, height=300).generate_from_frequencies(word_list)
-
     image = word_cloud.to_image()
-
-    imgBytes = io.BytesIO()
-    image.save(imgBytes, format='PNG')
-
-    b64_image = b64encode(imgBytes.getvalue())
-
+    img_bytes = io.BytesIO()
+    image.save(img_bytes, format='PNG')
+    b64_image = b64encode(img_bytes.getvalue())
     seq = [x['_id'] for x in count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
@@ -329,6 +313,7 @@ def passwords(request):
                                               'b64_image': b64_image
                                               })
 
+
 def usernames(request):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
@@ -336,33 +321,27 @@ def usernames(request):
                                                   'errors': ['Not Authenticated']
                                                   })
 
-    count = db.count_usernames()
-
+    count = db.count_usernames(col_name="count", sort=-1)
     word_list = []
     for c in count[:100]:
         size = c['count']
         word_list.append((c['_id'], size))
-        #word_list.append({'text': count['_id'], 'size': size})
 
     word_cloud = WordCloud(background_color="white", width=800, height=300).generate_from_frequencies(word_list)
-
     image = word_cloud.to_image()
-
-    imgBytes = io.BytesIO()
-    image.save(imgBytes, format='PNG')
-
-    b64_image = b64encode(imgBytes.getvalue())
-
+    img_bytes = io.BytesIO()
+    image.save(img_bytes, format='PNG')
+    b64_image = b64encode(img_bytes.getvalue())
     seq = [x['_id'] for x in count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
-
     return render(request, 'usernames.html', {'count': count[:25],
                                               'count_total': len(count),
                                               'longest': longest,
                                               'shortest': shortest,
                                               'b64_image': b64_image
                                               })
+
 
 def commands_page(request):
     if 'auth' in config:
@@ -371,16 +350,17 @@ def commands_page(request):
                                                   'errors': ['Not Authenticated']
                                                   })
 
-    count = db.count_commands()
+    count = db.count_commands(col_name="count", sort=-1)
     seq = [x['_id'] for x in count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
 
     return render(request, 'commands.html', {'count': count[:25],
-                                              'count_total': len(count),
-                                              'longest': longest,
-                                              'shortest': shortest,
-                                              })
+                                             'count_total': len(count),
+                                             'longest': longest,
+                                             'shortest': shortest,
+                                             })
+
 
 def downloads_page(request):
     if 'auth' in config:
@@ -389,7 +369,7 @@ def downloads_page(request):
                                                   'errors': ['Not Authenticated']
                                                   })
 
-    count = db.count_downloads()
+    count = db.count_downloads(col_name="count", sort=-1)
     seq = [x['_id'] for x in count]
     longest = max(seq, key=len)
     shortest = min(seq, key=len)
@@ -400,6 +380,7 @@ def downloads_page(request):
                                               'shortest': shortest
                                               })
 
+
 def sourceip_page(request):
     if 'auth' in config:
         if config['auth']['enable'].lower() == 'true' and not request.user.is_authenticated:
@@ -408,19 +389,15 @@ def sourceip_page(request):
                                                   })
 
     errors = []
-
     # get list of IP's
     ip_list = db.count_sourceip()
-
     # GeoIP table
     geo_list = db.get_geoip()
-
 
     # Lookup table
     lookup = []
     for row in geo_list:
         lookup.append(row['src_ip'])
-
 
     # Geo Database
     maxmind_city_db = '/usr/share/GeoIP/GeoLite2-City.mmdb'
@@ -428,11 +405,9 @@ def sourceip_page(request):
         raise IOError("Unable to locate GeoLite2-City.mmdb")
     reader = geoip2.database.Reader(maxmind_city_db)
 
-
     for ip_dict in ip_list:
         ipadd = ip_dict['_id']
-        #if not any(d['src_ip'] == ipadd for d in geo_list):
-        if not ipadd in lookup:
+        if ipadd not in lookup:
             # Create the new entry
             geo_entry = {'src_ip': ipadd}
             try:
@@ -517,11 +492,18 @@ def ajax_handler(request, command):
                     searching = True
 
             # Sorting
+
+
             # Because we dont have a column index we need to create one
-            index_table = ['session', 'src_ip', 'dst_port', 'starttime', 'endtime', 'duration', 'success', 'sensor']
+            if command == 'sessions':
+                columns = ['session', 'src_ip', 'dst_port', 'starttime', 'endtime', 'duration', 'sensor']
+            elif command in ['password', 'username', 'command', 'download']:
+                columns = [command, 'count']
+
+
             # Column Sort
             col_index = int(request.POST['order[0][column]'])
-            col_name = index_table[col_index]
+            col_name = columns[col_index]
             if request.POST['order[0][dir]'] == 'asc':
                 order = 1
             else:
@@ -537,6 +519,7 @@ def ajax_handler(request, command):
                 "draw": int(request.POST['draw']),
                 "recordsTotal": total_sessions,
                 "recordsFiltered": filtered_sessions,
+                "columns": columns,
                 "data": output
             }
 

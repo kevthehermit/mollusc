@@ -62,6 +62,7 @@ function datatablesAjax(dataset) {
                        json.draw = json.data.draw;
                        json.recordsTotal = json.data.recordsTotal;
                        json.recordsFiltered = json.data.recordsFiltered;
+                       json.columns = json.data.columns;
 
                        return json.data.data;
                     }

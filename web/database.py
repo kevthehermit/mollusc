@@ -43,10 +43,10 @@ class Database():
 
             self.col_geoip = moldb['geoip']
 
-
             # Index
 
             self.col_sessions.create_index([('$**', 'text')])
+            self.col_auth.create_index([("username", 'text'), ("password", 'text')])
 
             # Sort indexes
             self.col_sessions.create_index({'starttime': 1})
@@ -60,19 +60,22 @@ class Database():
 
         # If we want to search we need to do that first.
         if collection == 'password':
-            query = self.count_passwords()
+            query = self.count_passwords(col_name=col_name, sort=order)
 
         elif collection == 'username':
-            query = self.count_usernames()
+            query = self.count_usernames(col_name=col_name, sort=order)
 
         elif collection == 'sessions':
-            query = self.col_sessions.find()[start:start+length].sort(col_name, order)
+            if search_term:
+                query = self.col_sessions.find({"$text": {"$search": search_term}})[start:start+length].sort(col_name, order)
+            else:
+                query = self.col_sessions.find()[start:start+length].sort(col_name, order)
 
         elif collection == 'command':
-            query = self.count_commands()
+            query = self.count_commands(col_name=col_name, sort=order)
 
         elif collection == 'download':
-            query = self.count_downloads()
+            query = self.count_downloads(col_name=col_name, sort=order)
 
         else:
             return []
@@ -99,8 +102,15 @@ class Database():
                 ])
 
         if collection in ['password', 'username', 'command', 'download']:
-            for row in query[start:start+length]:
-                rows.append([row['_id'], row['count']])
+
+            # This is where we search for these elements.
+            if search_term:
+                for row in query:
+                    if search_term in row['_id']:
+                        rows.append([row['_id'], row['count']])
+            else:
+                for row in query[start:start+length]:
+                    rows.append([row['_id'], row['count']])
         return rows
 
 
@@ -166,50 +176,72 @@ class Database():
         count = self.col_sessions.find().count()
         return count
 
-    def count_passwords(self):
+    def count_passwords(self, col_name="count", sort=-1):
+
+        if col_name.lower() == 'count':
+            col_name = 'count'
+        else:
+            col_name = '_id'
         pipeline = [
             {"$unwind": "$password"},
             {"$group": {"_id": "$password", "count": {"$sum": 1}}},
-            {"$sort": SON([("count", -1), ("_id", -1)])}
+            {"$sort": SON([(col_name, sort)])}
             ]
         query = list(self.col_auth.aggregate(pipeline))
         return query
 
-    def count_usernames(self):
+    def count_usernames(self, col_name="count", sort=-1):
+        if col_name.lower() == 'count':
+            col_name = 'count'
+        else:
+            col_name = '_id'
         pipeline = [
             {"$unwind": "$username"},
             {"$group": {"_id": "$username", "count": {"$sum": 1}}},
-            {"$sort": SON([("count", -1), ("_id", -1)])}
+            {"$sort": SON([(col_name, sort)])}
             ]
         query = list(self.col_auth.aggregate(pipeline))
         return query
 
-    def count_commands(self):
+    def count_commands(self, col_name="count", sort=-1):
+        if col_name.lower() == 'count':
+            col_name = 'count'
+        else:
+            col_name = '_id'
         pipeline = [
             {"$unwind": "$input"},
             {"$group": {"_id": "$input", "count": {"$sum": 1}}},
-            {"$sort": SON([("count", -1), ("_id", -1)])}
+            {"$sort": SON([(col_name, sort)])}
             ]
         query = list(self.col_input.aggregate(pipeline))
         return query
 
-    def count_downloads(self):
+    def count_downloads(self, col_name="count", sort=-1):
+        if col_name.lower() == 'count':
+            col_name = 'count'
+        else:
+            col_name = '_id'
         pipeline = [
             {"$unwind": "$url"},
             {"$group": {"_id": "$url", "count": {"$sum": 1}}},
-            {"$sort": SON([("count", -1), ("_id", -1)])}
+            {"$sort": SON([(col_name, sort)])}
             ]
         query = list(self.col_downloads.aggregate(pipeline))
         return query
 
-    def count_sourceip(self):
+    def count_sourceip(self, col_name="count", sort=-1):
+        if col_name.lower() == 'count':
+            col_name = 'count'
+        else:
+            col_name = '_id'
         pipeline = [
             {"$unwind": "$src_ip"},
             {"$group": {"_id": "$src_ip", "count": {"$sum": 1}}},
-            {"$sort": SON([("count", -1), ("_id", -1)])}
+            {"$sort": SON([(col_name, sort)])}
             ]
         query = list(self.col_sessions.aggregate(pipeline))
         return query
+
 
     ##
     # Feeds

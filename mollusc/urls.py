@@ -31,7 +31,7 @@ urlpatterns = [
     # AjaxHandlers
     url(r'^ajaxhandler/(?P<command>.+)/$', views.ajax_handler),
     # Feeds
-    url(r'^feeds/(?P<datatype>.+)/(?P<format>.+)/$', views.feeds),
+    url(r'^feeds/(?P<datatype>.+)/(?P<dataformat>.+)/$', views.feeds),
     # Passwords
     url(r'^passwords/', views.passwords),
     # Usernames

@@ -14,7 +14,7 @@ enable = False
 
 [maps]
 # https://developers.google.com/maps/documentation/javascript/get-api-key
-api_key = enter key here
+api_key = mapskey
 [shodan]
 enabled = False
-api_key =
+api_key = shodankey

@@ -30,16 +30,13 @@ Mollusc requires a mongo database in order to store analysis results. There are 
 ### Mongo Authentication
 If you are allowing remote connections to your mongo database it is advisable to enable authentication
 
-In order to configure mongo to use authenitcation you need to connect using the mongo shell. 
+In order to configure mongo to use authenitcation you need to connect using the mongo shell and create some user accounts. 
+First connect to mongo and create an admin user
 
-- ```mongo```
-- ```use admin```
-
-create an admin user
-
-- 
 ```
-db.createUser(
+# mongo
+> use admin
+> db.createUser(
   {
     user: "username",
     pwd: "securepassword",
@@ -50,10 +47,9 @@ db.createUser(
 
 create a cowrie user that can only access its own database
 
-```use cowrie```
-
 ```
-db.createUser(
+> use cowrie
+> db.createUser(
   {
     user: "cowrie",
     pwd: "securepassword",
@@ -62,15 +58,13 @@ db.createUser(
 )
 ```
 
-exit mongo 
-
-```exit```
+exit mongo  ```exit```
 
 configure the service to set authentication
 
 for ubuntu 14.04 using 
 
-sudo nano /etc/mongo.conf
+```sudo nano /etc/mongo.conf```
 
 change the security options to match
 

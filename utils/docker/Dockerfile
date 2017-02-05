@@ -31,7 +31,7 @@ RUN cd /tmp && \
 
 # Get Mollusc
 RUN cd /opt/ && \
-  git clone https://github.com/kevthehermit/mollusc
+  git clone https://github.com/kevthehermit/mollusc.git
 
 # Python requirements
 RUN cd /opt/mollusc && \
@@ -40,7 +40,8 @@ RUN cd /opt/mollusc && \
 # Create first user
 RUN cd /opt/mollusc && \
   python manage.py migrate && \
-  echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', '$ADMIN_PASS')" | python manage.py shell
+  echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', '$ADMIN_PASS')" | python manage.py shell && \
+  python manage.py collectstatic --noinput
 
 
 # Vhost
